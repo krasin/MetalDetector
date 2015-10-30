@@ -151,9 +151,7 @@ class MetalDetectorTests: XCTestCase {
         XCTAssertEqualWithAccuracy(engine.L1(net.blobs["inception_4d_output"]!), Float(464165), accuracy: Float(464165 / 20))
         XCTAssertEqualWithAccuracy(engine.L2(net.blobs["inception_4d_output"]!), Float(27689768), accuracy: Float(27689768 / 10))
 
-        print("GoogLeNet forward: \(ans)")
-
-        print("Pool1_3x3_s2: ")
+        /*print("Pool1_3x3_s2: ")
         var buf = Array<Float>(count: 56 * 56, repeatedValue: 0)
         net.blobs["pool1_3x3_s2"]!.getBytes(&buf, bytesPerRow: 56 * 4, bytesPerImage: 56 * 56 * 4,
             fromRegion: MTLRegionMake2D(0, 0, 56, 56), mipmapLevel: 0, slice: 0)
@@ -164,7 +162,7 @@ class MetalDetectorTests: XCTestCase {
             print("")
         }
         print("")
-        print("")
+        print("")*/
 
         /*print("data: h: \(net.data.height) w: \(net.data.width) textureType: \(net.data.textureType.rawValue) pixelFormat: \(net.data.pixelFormat.rawValue)")
         for c in 0...2 {
