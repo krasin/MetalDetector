@@ -7,19 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		BB03AB4E1BE0638900FBE9B6 /* GoogLeNet.data in Resources */ = {isa = PBXBuildFile; fileRef = BB03AB4D1BE0638900FBE9B6 /* GoogLeNet.data */; settings = {ASSET_TAGS = (); }; };
-		BB03AB501BE0943900FBE9B6 /* synset_words.txt in Resources */ = {isa = PBXBuildFile; fileRef = BB03AB4F1BE0943900FBE9B6 /* synset_words.txt */; settings = {ASSET_TAGS = (); }; };
-		BB3D671E1BD0691B00FE349F /* GoogLeNet.gen.metal in Sources */ = {isa = PBXBuildFile; fileRef = BB3D671D1BD0691B00FE349F /* GoogLeNet.gen.metal */; settings = {ASSET_TAGS = (); }; };
-		BB3D67201BD4B45100FE349F /* GoogLeNet.gen.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3D671F1BD4B45100FE349F /* GoogLeNet.gen.swift */; settings = {ASSET_TAGS = (); }; };
+		BB03AB4E1BE0638900FBE9B6 /* GoogLeNet.data in Resources */ = {isa = PBXBuildFile; fileRef = BB03AB4D1BE0638900FBE9B6 /* GoogLeNet.data */; };
+		BB03AB501BE0943900FBE9B6 /* synset_words.txt in Resources */ = {isa = PBXBuildFile; fileRef = BB03AB4F1BE0943900FBE9B6 /* synset_words.txt */; };
+		BB3D671E1BD0691B00FE349F /* GoogLeNet.gen.metal in Sources */ = {isa = PBXBuildFile; fileRef = BB3D671D1BD0691B00FE349F /* GoogLeNet.gen.metal */; };
+		BB3D67201BD4B45100FE349F /* GoogLeNet.gen.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3D671F1BD4B45100FE349F /* GoogLeNet.gen.swift */; };
 		BBAE5A6E1BBE46CE00AD54A1 /* MetalDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAE5A6D1BBE46CE00AD54A1 /* MetalDetectorTests.swift */; };
-		BBAE5A761BC6DC4B00AD54A1 /* Net.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAE5A751BC6DC4B00AD54A1 /* Net.swift */; settings = {ASSET_TAGS = (); }; };
-		BBAE5A781BC7794700AD54A1 /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAE5A771BC7794700AD54A1 /* Engine.swift */; settings = {ASSET_TAGS = (); }; };
+		BBAE5A761BC6DC4B00AD54A1 /* Net.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAE5A751BC6DC4B00AD54A1 /* Net.swift */; };
+		BBAE5A781BC7794700AD54A1 /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAE5A771BC7794700AD54A1 /* Engine.swift */; };
 		BBB6212C1BB884CC009620C4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB6212B1BB884CC009620C4 /* AppDelegate.swift */; };
 		BBB6212E1BB884CC009620C4 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB6212D1BB884CC009620C4 /* ViewController.swift */; };
 		BBB621311BB884CC009620C4 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BBB6212F1BB884CC009620C4 /* Main.storyboard */; };
 		BBB621331BB884CC009620C4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BBB621321BB884CC009620C4 /* Assets.xcassets */; };
 		BBB621361BB884CC009620C4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BBB621341BB884CC009620C4 /* LaunchScreen.storyboard */; };
-		BBFDDBCC1BBCFA94005C21CF /* Engine.metal in Sources */ = {isa = PBXBuildFile; fileRef = BBFDDBCB1BBCFA94005C21CF /* Engine.metal */; settings = {ASSET_TAGS = (); }; };
+		BBFDDBCC1BBCFA94005C21CF /* Engine.metal in Sources */ = {isa = PBXBuildFile; fileRef = BBFDDBCB1BBCFA94005C21CF /* Engine.metal */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
