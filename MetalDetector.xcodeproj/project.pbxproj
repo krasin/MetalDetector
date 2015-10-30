@@ -381,6 +381,7 @@
 				DEFINES_MODULE = YES;
 				INFOPLIST_FILE = MetalDetector/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_TREAT_WARNINGS_AS_ERRORS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = samofly.MetalDetector;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -393,6 +394,7 @@
 				DEFINES_MODULE = YES;
 				INFOPLIST_FILE = MetalDetector/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_TREAT_WARNINGS_AS_ERRORS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = samofly.MetalDetector;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
