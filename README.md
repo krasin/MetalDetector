@@ -13,4 +13,4 @@ Otherwise, the network will get a rotated image, and the classification will lik
 * There's a rounding bug right now (likely, in Convolution layers). While the network gives answers
 which are within ~8% of Caffe output, it's noticeably worse than a real GoogLeNet taken from the Caffe Zoo.
 
-Also, please, be aware that ImageNet classes are weird, no so many real world things could be detected (but it knows about 300 breeds of dogs, wee!)
+Also, please, be aware that ImageNet classes are weird, not so many real world things could be detected (but it knows about 300 breeds of dogs, whee!)
