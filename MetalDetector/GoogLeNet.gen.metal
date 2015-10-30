@@ -120,7 +120,7 @@ kernel void conv1_7x7_s2_0(texture2d_array<float, access::read> in [[texture(0)]
         for (int fc = 0; fc < 3; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 224 && x+dx >= 0 && x+dx <= 224) {
+                    if (y+dy >= 0 && y+dy < 224 && x+dx >= 0 && x+dx < 224) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -188,7 +188,7 @@ kernel void conv2_3x3_reduce_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 64; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 56 && x+dx >= 0 && x+dx <= 56) {
+                    if (y+dy >= 0 && y+dy < 56 && x+dx >= 0 && x+dx < 56) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -251,7 +251,7 @@ kernel void conv2_3x3_0(texture2d_array<float, access::read> in [[texture(0)]],
         for (int fc = 0; fc < 64; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 56 && x+dx >= 0 && x+dx <= 56) {
+                    if (y+dy >= 0 && y+dy < 56 && x+dx >= 0 && x+dx < 56) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -319,7 +319,7 @@ kernel void inception_3a_1x1_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 192; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx <= 28) {
+                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -370,7 +370,7 @@ kernel void inception_3a_3x3_reduce_0(texture2d_array<float, access::read> in [[
         for (int fc = 0; fc < 192; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx <= 28) {
+                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -425,7 +425,7 @@ kernel void inception_3a_3x3_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 96; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx <= 28) {
+                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -466,7 +466,7 @@ kernel void inception_3a_5x5_reduce_0(texture2d_array<float, access::read> in [[
         for (int fc = 0; fc < 192; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx <= 28) {
+                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -509,7 +509,7 @@ kernel void inception_3a_5x5_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 16; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx <= 28) {
+                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -564,7 +564,7 @@ kernel void inception_3a_pool_proj_0(texture2d_array<float, access::read> in [[t
         for (int fc = 0; fc < 192; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx <= 28) {
+                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -619,7 +619,7 @@ kernel void inception_3b_1x1_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 256; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx <= 28) {
+                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -674,7 +674,7 @@ kernel void inception_3b_3x3_reduce_0(texture2d_array<float, access::read> in [[
         for (int fc = 0; fc < 256; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx <= 28) {
+                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -737,7 +737,7 @@ kernel void inception_3b_3x3_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 128; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx <= 28) {
+                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -780,7 +780,7 @@ kernel void inception_3b_5x5_reduce_0(texture2d_array<float, access::read> in [[
         for (int fc = 0; fc < 256; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx <= 28) {
+                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -831,7 +831,7 @@ kernel void inception_3b_5x5_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 32; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx <= 28) {
+                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -890,7 +890,7 @@ kernel void inception_3b_pool_proj_0(texture2d_array<float, access::read> in [[t
         for (int fc = 0; fc < 256; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx <= 28) {
+                    if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -965,7 +965,7 @@ kernel void inception_4a_1x1_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 480; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -1016,7 +1016,7 @@ kernel void inception_4a_3x3_reduce_0(texture2d_array<float, access::read> in [[
         for (int fc = 0; fc < 480; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -1081,7 +1081,7 @@ kernel void inception_4a_3x3_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 96; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -1122,7 +1122,7 @@ kernel void inception_4a_5x5_reduce_0(texture2d_array<float, access::read> in [[
         for (int fc = 0; fc < 480; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -1167,7 +1167,7 @@ kernel void inception_4a_5x5_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 16; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -1226,7 +1226,7 @@ kernel void inception_4a_pool_proj_0(texture2d_array<float, access::read> in [[t
         for (int fc = 0; fc < 480; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -1285,7 +1285,7 @@ kernel void inception_4b_1x1_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 512; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -1338,7 +1338,7 @@ kernel void inception_4b_3x3_reduce_0(texture2d_array<float, access::read> in [[
         for (int fc = 0; fc < 512; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -1405,7 +1405,7 @@ kernel void inception_4b_3x3_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 112; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -1447,7 +1447,7 @@ kernel void inception_4b_5x5_reduce_0(texture2d_array<float, access::read> in [[
         for (int fc = 0; fc < 512; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -1494,7 +1494,7 @@ kernel void inception_4b_5x5_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 24; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -1553,7 +1553,7 @@ kernel void inception_4b_pool_proj_0(texture2d_array<float, access::read> in [[t
         for (int fc = 0; fc < 512; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -1608,7 +1608,7 @@ kernel void inception_4c_1x1_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 512; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -1663,7 +1663,7 @@ kernel void inception_4c_3x3_reduce_0(texture2d_array<float, access::read> in [[
         for (int fc = 0; fc < 512; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -1734,7 +1734,7 @@ kernel void inception_4c_3x3_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 128; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -1776,7 +1776,7 @@ kernel void inception_4c_5x5_reduce_0(texture2d_array<float, access::read> in [[
         for (int fc = 0; fc < 512; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -1823,7 +1823,7 @@ kernel void inception_4c_5x5_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 24; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -1882,7 +1882,7 @@ kernel void inception_4c_pool_proj_0(texture2d_array<float, access::read> in [[t
         for (int fc = 0; fc < 512; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -1935,7 +1935,7 @@ kernel void inception_4d_1x1_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 512; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -1992,7 +1992,7 @@ kernel void inception_4d_3x3_reduce_0(texture2d_array<float, access::read> in [[
         for (int fc = 0; fc < 512; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -2067,7 +2067,7 @@ kernel void inception_4d_3x3_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 144; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -2110,7 +2110,7 @@ kernel void inception_4d_5x5_reduce_0(texture2d_array<float, access::read> in [[
         for (int fc = 0; fc < 512; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -2157,7 +2157,7 @@ kernel void inception_4d_5x5_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 32; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -2216,7 +2216,7 @@ kernel void inception_4d_pool_proj_0(texture2d_array<float, access::read> in [[t
         for (int fc = 0; fc < 512; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -2287,7 +2287,7 @@ kernel void inception_4e_1x1_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 528; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -2346,7 +2346,7 @@ kernel void inception_4e_3x3_reduce_0(texture2d_array<float, access::read> in [[
         for (int fc = 0; fc < 528; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -2425,7 +2425,7 @@ kernel void inception_4e_3x3_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 160; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -2468,7 +2468,7 @@ kernel void inception_4e_5x5_reduce_0(texture2d_array<float, access::read> in [[
         for (int fc = 0; fc < 528; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -2523,7 +2523,7 @@ kernel void inception_4e_5x5_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 32; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -2590,7 +2590,7 @@ kernel void inception_4e_pool_proj_0(texture2d_array<float, access::read> in [[t
         for (int fc = 0; fc < 528; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx <= 14) {
+                    if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -2673,7 +2673,7 @@ kernel void inception_5a_1x1_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 832; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx <= 7) {
+                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -2732,7 +2732,7 @@ kernel void inception_5a_3x3_reduce_0(texture2d_array<float, access::read> in [[
         for (int fc = 0; fc < 832; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx <= 7) {
+                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -2811,7 +2811,7 @@ kernel void inception_5a_3x3_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 160; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx <= 7) {
+                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -2854,7 +2854,7 @@ kernel void inception_5a_5x5_reduce_0(texture2d_array<float, access::read> in [[
         for (int fc = 0; fc < 832; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx <= 7) {
+                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -2909,7 +2909,7 @@ kernel void inception_5a_5x5_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 32; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx <= 7) {
+                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -2976,7 +2976,7 @@ kernel void inception_5a_pool_proj_0(texture2d_array<float, access::read> in [[t
         for (int fc = 0; fc < 832; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx <= 7) {
+                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -3063,7 +3063,7 @@ kernel void inception_5b_1x1_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 832; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx <= 7) {
+                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -3126,7 +3126,7 @@ kernel void inception_5b_3x3_reduce_0(texture2d_array<float, access::read> in [[
         for (int fc = 0; fc < 832; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx <= 7) {
+                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -3213,7 +3213,7 @@ kernel void inception_5b_3x3_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 192; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx <= 7) {
+                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -3258,7 +3258,7 @@ kernel void inception_5b_5x5_reduce_0(texture2d_array<float, access::read> in [[
         for (int fc = 0; fc < 832; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx <= 7) {
+                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -3313,7 +3313,7 @@ kernel void inception_5b_5x5_0(texture2d_array<float, access::read> in [[texture
         for (int fc = 0; fc < 48; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx <= 7) {
+                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
@@ -3380,7 +3380,7 @@ kernel void inception_5b_pool_proj_0(texture2d_array<float, access::read> in [[t
         for (int fc = 0; fc < 832; fc++) {
             for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
                 for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
-                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx <= 7) {
+                    if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
                         float w = weights[i];
                         float v = in.read(uint2(x + dx, y + dy), fc)[0];
                         sum += w * v;
