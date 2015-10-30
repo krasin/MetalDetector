@@ -1,0 +1,434 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		BB03AB4E1BE0638900FBE9B6 /* GoogLeNet.data in Resources */ = {isa = PBXBuildFile; fileRef = BB03AB4D1BE0638900FBE9B6 /* GoogLeNet.data */; settings = {ASSET_TAGS = (); }; };
+		BB03AB501BE0943900FBE9B6 /* synset_words.txt in Resources */ = {isa = PBXBuildFile; fileRef = BB03AB4F1BE0943900FBE9B6 /* synset_words.txt */; settings = {ASSET_TAGS = (); }; };
+		BB3D671E1BD0691B00FE349F /* GoogLeNet.gen.metal in Sources */ = {isa = PBXBuildFile; fileRef = BB3D671D1BD0691B00FE349F /* GoogLeNet.gen.metal */; settings = {ASSET_TAGS = (); }; };
+		BB3D67201BD4B45100FE349F /* GoogLeNet.gen.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3D671F1BD4B45100FE349F /* GoogLeNet.gen.swift */; settings = {ASSET_TAGS = (); }; };
+		BBAE5A6E1BBE46CE00AD54A1 /* MetalDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAE5A6D1BBE46CE00AD54A1 /* MetalDetectorTests.swift */; };
+		BBAE5A761BC6DC4B00AD54A1 /* Net.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAE5A751BC6DC4B00AD54A1 /* Net.swift */; settings = {ASSET_TAGS = (); }; };
+		BBAE5A781BC7794700AD54A1 /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAE5A771BC7794700AD54A1 /* Engine.swift */; settings = {ASSET_TAGS = (); }; };
+		BBB6212C1BB884CC009620C4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB6212B1BB884CC009620C4 /* AppDelegate.swift */; };
+		BBB6212E1BB884CC009620C4 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB6212D1BB884CC009620C4 /* ViewController.swift */; };
+		BBB621311BB884CC009620C4 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BBB6212F1BB884CC009620C4 /* Main.storyboard */; };
+		BBB621331BB884CC009620C4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BBB621321BB884CC009620C4 /* Assets.xcassets */; };
+		BBB621361BB884CC009620C4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BBB621341BB884CC009620C4 /* LaunchScreen.storyboard */; };
+		BBFDDBCC1BBCFA94005C21CF /* Engine.metal in Sources */ = {isa = PBXBuildFile; fileRef = BBFDDBCB1BBCFA94005C21CF /* Engine.metal */; settings = {ASSET_TAGS = (); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BBAE5A701BBE46CE00AD54A1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BBB621201BB884CC009620C4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BBB621271BB884CC009620C4;
+			remoteInfo = MetalDetector;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		BB03AB4D1BE0638900FBE9B6 /* GoogLeNet.data */ = {isa = PBXFileReference; lastKnownFileType = file; path = GoogLeNet.data; sourceTree = "<group>"; };
+		BB03AB4F1BE0943900FBE9B6 /* synset_words.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = synset_words.txt; sourceTree = "<group>"; };
+		BB3D671D1BD0691B00FE349F /* GoogLeNet.gen.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = GoogLeNet.gen.metal; sourceTree = "<group>"; };
+		BB3D671F1BD4B45100FE349F /* GoogLeNet.gen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GoogLeNet.gen.swift; sourceTree = "<group>"; };
+		BBAE5A6B1BBE46CE00AD54A1 /* MetalDetectorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MetalDetectorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BBAE5A6D1BBE46CE00AD54A1 /* MetalDetectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalDetectorTests.swift; sourceTree = "<group>"; };
+		BBAE5A6F1BBE46CE00AD54A1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BBAE5A751BC6DC4B00AD54A1 /* Net.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Net.swift; sourceTree = "<group>"; };
+		BBAE5A771BC7794700AD54A1 /* Engine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Engine.swift; sourceTree = "<group>"; };
+		BBB621281BB884CC009620C4 /* MetalDetector.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MetalDetector.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BBB6212B1BB884CC009620C4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		BBB6212D1BB884CC009620C4 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		BBB621301BB884CC009620C4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		BBB621321BB884CC009620C4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		BBB621351BB884CC009620C4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		BBB621371BB884CC009620C4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BBFDDBCB1BBCFA94005C21CF /* Engine.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Engine.metal; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BBAE5A681BBE46CE00AD54A1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BBB621251BB884CC009620C4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		BBAE5A6C1BBE46CE00AD54A1 /* MetalDetectorTests */ = {
+			isa = PBXGroup;
+			children = (
+				BBAE5A6D1BBE46CE00AD54A1 /* MetalDetectorTests.swift */,
+				BBAE5A6F1BBE46CE00AD54A1 /* Info.plist */,
+			);
+			path = MetalDetectorTests;
+			sourceTree = "<group>";
+		};
+		BBB6211F1BB884CC009620C4 = {
+			isa = PBXGroup;
+			children = (
+				BBB6212A1BB884CC009620C4 /* MetalDetector */,
+				BBAE5A6C1BBE46CE00AD54A1 /* MetalDetectorTests */,
+				BBB621291BB884CC009620C4 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BBB621291BB884CC009620C4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BBB621281BB884CC009620C4 /* MetalDetector.app */,
+				BBAE5A6B1BBE46CE00AD54A1 /* MetalDetectorTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BBB6212A1BB884CC009620C4 /* MetalDetector */ = {
+			isa = PBXGroup;
+			children = (
+				BB03AB4F1BE0943900FBE9B6 /* synset_words.txt */,
+				BB03AB4D1BE0638900FBE9B6 /* GoogLeNet.data */,
+				BB3D671F1BD4B45100FE349F /* GoogLeNet.gen.swift */,
+				BB3D671D1BD0691B00FE349F /* GoogLeNet.gen.metal */,
+				BBB6212B1BB884CC009620C4 /* AppDelegate.swift */,
+				BBB6212D1BB884CC009620C4 /* ViewController.swift */,
+				BBB6212F1BB884CC009620C4 /* Main.storyboard */,
+				BBB621321BB884CC009620C4 /* Assets.xcassets */,
+				BBB621341BB884CC009620C4 /* LaunchScreen.storyboard */,
+				BBB621371BB884CC009620C4 /* Info.plist */,
+				BBFDDBCB1BBCFA94005C21CF /* Engine.metal */,
+				BBAE5A751BC6DC4B00AD54A1 /* Net.swift */,
+				BBAE5A771BC7794700AD54A1 /* Engine.swift */,
+			);
+			path = MetalDetector;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		BBAE5A6A1BBE46CE00AD54A1 /* MetalDetectorTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BBAE5A741BBE46CE00AD54A1 /* Build configuration list for PBXNativeTarget "MetalDetectorTests" */;
+			buildPhases = (
+				BBAE5A671BBE46CE00AD54A1 /* Sources */,
+				BBAE5A681BBE46CE00AD54A1 /* Frameworks */,
+				BBAE5A691BBE46CE00AD54A1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BBAE5A711BBE46CE00AD54A1 /* PBXTargetDependency */,
+			);
+			name = MetalDetectorTests;
+			productName = MetalDetectorTests;
+			productReference = BBAE5A6B1BBE46CE00AD54A1 /* MetalDetectorTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		BBB621271BB884CC009620C4 /* MetalDetector */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BBB6213A1BB884CC009620C4 /* Build configuration list for PBXNativeTarget "MetalDetector" */;
+			buildPhases = (
+				BBB621241BB884CC009620C4 /* Sources */,
+				BBB621251BB884CC009620C4 /* Frameworks */,
+				BBB621261BB884CC009620C4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MetalDetector;
+			productName = MetalDetector;
+			productReference = BBB621281BB884CC009620C4 /* MetalDetector.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BBB621201BB884CC009620C4 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0700;
+				ORGANIZATIONNAME = "Ivan Krasin";
+				TargetAttributes = {
+					BBAE5A6A1BBE46CE00AD54A1 = {
+						CreatedOnToolsVersion = 7.0.1;
+						TestTargetID = BBB621271BB884CC009620C4;
+					};
+					BBB621271BB884CC009620C4 = {
+						CreatedOnToolsVersion = 7.0;
+					};
+				};
+			};
+			buildConfigurationList = BBB621231BB884CC009620C4 /* Build configuration list for PBXProject "MetalDetector" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = BBB6211F1BB884CC009620C4;
+			productRefGroup = BBB621291BB884CC009620C4 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BBB621271BB884CC009620C4 /* MetalDetector */,
+				BBAE5A6A1BBE46CE00AD54A1 /* MetalDetectorTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BBAE5A691BBE46CE00AD54A1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BBB621261BB884CC009620C4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BBB621361BB884CC009620C4 /* LaunchScreen.storyboard in Resources */,
+				BB03AB501BE0943900FBE9B6 /* synset_words.txt in Resources */,
+				BBB621331BB884CC009620C4 /* Assets.xcassets in Resources */,
+				BB03AB4E1BE0638900FBE9B6 /* GoogLeNet.data in Resources */,
+				BBB621311BB884CC009620C4 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BBAE5A671BBE46CE00AD54A1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BBAE5A6E1BBE46CE00AD54A1 /* MetalDetectorTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BBB621241BB884CC009620C4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BBB6212E1BB884CC009620C4 /* ViewController.swift in Sources */,
+				BBB6212C1BB884CC009620C4 /* AppDelegate.swift in Sources */,
+				BBFDDBCC1BBCFA94005C21CF /* Engine.metal in Sources */,
+				BBAE5A781BC7794700AD54A1 /* Engine.swift in Sources */,
+				BB3D671E1BD0691B00FE349F /* GoogLeNet.gen.metal in Sources */,
+				BB3D67201BD4B45100FE349F /* GoogLeNet.gen.swift in Sources */,
+				BBAE5A761BC6DC4B00AD54A1 /* Net.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BBAE5A711BBE46CE00AD54A1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BBB621271BB884CC009620C4 /* MetalDetector */;
+			targetProxy = BBAE5A701BBE46CE00AD54A1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		BBB6212F1BB884CC009620C4 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				BBB621301BB884CC009620C4 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		BBB621341BB884CC009620C4 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				BBB621351BB884CC009620C4 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		BBAE5A721BBE46CE00AD54A1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = MetalDetectorTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = samofly.MetalDetectorTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MetalDetector.app/MetalDetector";
+			};
+			name = Debug;
+		};
+		BBAE5A731BBE46CE00AD54A1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = MetalDetectorTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = samofly.MetalDetectorTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MetalDetector.app/MetalDetector";
+			};
+			name = Release;
+		};
+		BBB621381BB884CC009620C4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BBB621391BB884CC009620C4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		BBB6213B1BB884CC009620C4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEFINES_MODULE = YES;
+				INFOPLIST_FILE = MetalDetector/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = samofly.MetalDetector;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		BBB6213C1BB884CC009620C4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEFINES_MODULE = YES;
+				INFOPLIST_FILE = MetalDetector/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = samofly.MetalDetector;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BBAE5A741BBE46CE00AD54A1 /* Build configuration list for PBXNativeTarget "MetalDetectorTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BBAE5A721BBE46CE00AD54A1 /* Debug */,
+				BBAE5A731BBE46CE00AD54A1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BBB621231BB884CC009620C4 /* Build configuration list for PBXProject "MetalDetector" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BBB621381BB884CC009620C4 /* Debug */,
+				BBB621391BB884CC009620C4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BBB6213A1BB884CC009620C4 /* Build configuration list for PBXNativeTarget "MetalDetector" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BBB6213B1BB884CC009620C4 /* Debug */,
+				BBB6213C1BB884CC009620C4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = BBB621201BB884CC009620C4 /* Project object */;
+}
