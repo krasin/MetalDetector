@@ -23,17 +23,10 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     var running: Bool = false
 
     var metalDevice: MTLDevice?
-    var metalLib: MTLLibrary?
-    var commandQueue: MTLCommandQueue?
     var textureCache : Unmanaged<CVMetalTextureCacheRef>?
     var input: MTLTexture?
     var output : MTLTexture?
     var outputBGRA : MTLTexture?
-
-    // Shaders
-    var cropAndRotateState: MTLComputePipelineState?
-    var crop352x288to224State: MTLComputePipelineState?
-    var float2BGRAState : MTLComputePipelineState?
 
     var engine: Engine?
     var net : Net?
@@ -44,7 +37,6 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         super.viewDidLoad()
 
         if NSProcessInfo.processInfo().environment["SAMOFLY_UNIT_TESTS"] == nil {
-            // Initialize Metal
             initMetal()
         }
 
@@ -110,32 +102,12 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         }
     }
 
-    private func loadKernelState(kernelName: String) -> MTLComputePipelineState? {
-        let f = metalLib!.newFunctionWithName(kernelName)
-        if f == nil {
-            print("Could not load \(kernelName) from the library")
-            exit(1)
-        }
-        do {
-            return try metalDevice!.newComputePipelineStateWithFunction(f!)
-        } catch {
-            print("Could not create pipeline state for \(kernelName)")
-            exit(1)
-        }
-    }
-
     private func initMetal() {
         engine = Engine()
         net = Net(engine: engine!, config: GoogLeNetConfig(),
             threadsPerThreadgroup: GoogLeNetProfile.GetThreadsPerThreadgroup())
         metalDevice = MTLCreateSystemDefaultDevice()
         CVMetalTextureCacheCreate(kCFAllocatorDefault, nil, metalDevice!, nil, &textureCache)
-        metalLib = metalDevice!.newDefaultLibrary()!
-        commandQueue = metalDevice!.newCommandQueue()
-
-        cropAndRotateState = loadKernelState("cropAndRotate")
-        crop352x288to224State = loadKernelState("crop352x288to224")
-        float2BGRAState = loadKernelState("float2BGRA")
 
         // init output texture
         let outputDesc = MTLTextureDescriptor()
@@ -144,7 +116,6 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         outputDesc.width = windowSize
         outputDesc.pixelFormat = MTLPixelFormat.R16Float
         outputDesc.arrayLength = 3
-        // outputDesc.mipmapLevelCount = 1
         output = metalDevice!.newTextureWithDescriptor(outputDesc)
 
         let outputDescBGRA = MTLTextureDescriptor.texture2DDescriptorWithPixelFormat(
@@ -167,13 +138,6 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     func captureOutput(captureOutput: AVCaptureOutput!,
             didOutputSampleBuffer sampleBuffer: CMSampleBuffer!,
             fromConnection connection: AVCaptureConnection!) {
-        /*if self.frameCount % 100 == 0 {
-            let count = self.frameCount
-            dispatch_async(dispatch_get_main_queue(), {
-                self.infoLabel.text = "Frame #\(count)"
-            })
-            print("Frame #\(self.frameCount)")
-        }*/
         self.frameCount++
         if self.frameCount < 50 {
             return
@@ -208,28 +172,6 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         // Run Metal shaders on the input and fill the output
         let startTime = NSDate()
 
-        // Crop
-        /*if true {
-            let commandBuffer = commandQueue!.commandBuffer()
-            let commandEncoder = commandBuffer.computeCommandEncoder()
-            //let sampleDesc = MTLSamplerDescriptor()
-            //sampleDesc.normalizedCoordinates = true
-            //sampleDesc.minFilter = MTLSamplerMinMagFilter.Linear
-            //sampleDesc.magFilter = MTLSamplerMinMagFilter.Linear
-            //sampleDesc.maxAnisotropy = 16
-            //let sampleState = metalDevice!.newSamplerStateWithDescriptor(sampleDesc)
-            commandEncoder.setComputePipelineState(crop352x288to224State!)
-            commandEncoder.setTexture(input, atIndex: 0)
-            commandEncoder.setTexture(output, atIndex: 1)
-            //commandEncoder.setSamplerState(sampleState, atIndex: 0)
-            let threadsPerThreadgroup = MTLSizeMake(16, 16, 1)
-            let threadgroupsPerGrid = MTLSizeMake(windowSize / threadsPerThreadgroup.width,
-                windowSize / threadsPerThreadgroup.height, 1)
-            commandEncoder.dispatchThreadgroups(threadgroupsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
-            commandEncoder.endEncoding()
-            commandBuffer.commit();
-            commandBuffer.waitUntilCompleted()
-        }*/
         let ans = net!.forward(input!)
         let (idx, prob) = argMax(ans)
         let label = "\(net!.labels[idx]) - \(prob*100)%"
@@ -243,42 +185,5 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         dispatch_async(dispatch_get_main_queue(), {
             self.infoLabel.text = label
         })
-
-        /*if true {
-            let commandBuffer = commandQueue!.commandBuffer()
-            let commandEncoder = commandBuffer.computeCommandEncoder()
-            commandEncoder.setComputePipelineState(float2BGRAState!)
-            commandEncoder.setTexture(net!.blobs["data"]!, atIndex: 0)
-            commandEncoder.setTexture(outputBGRA, atIndex: 1)
-            let threadsPerThreadgroup = MTLSizeMake(16, 16, 1)
-            let threadgroupsPerGrid = MTLSizeMake(windowSize / threadsPerThreadgroup.width,
-                windowSize / threadsPerThreadgroup.height, 1)
-            commandEncoder.dispatchThreadgroups(threadgroupsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
-            commandEncoder.endEncoding()
-            commandBuffer.commit();
-            commandBuffer.waitUntilCompleted()
-        }*/
-
-
-        // Copy data from the output texture.
-        /*var imageBuf = Array<UInt8>(count: windowSize * windowSize * 4, repeatedValue: 0)
-        outputBGRA!.getBytes(&imageBuf, bytesPerRow: windowSize*4,
-            fromRegion: MTLRegionMake2D(0, 0, windowSize, windowSize), mipmapLevel: 0)
-
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        let context = CGBitmapContextCreate(&imageBuf, windowSize, windowSize, 8, 4*windowSize, colorSpace,
-            CGImageAlphaInfo.PremultipliedFirst.rawValue | CGBitmapInfo.ByteOrder32Little.rawValue)
-        if context == nil {
-            print("Could not create context from image buf")
-            exit(1)
-        }
-        let cgImg = CGBitmapContextCreateImage(context)
-        if cgImg == nil {
-            print("Could not create CGImage from context")
-            exit(1)
-        }
-        let uiImg = UIImage(CGImage:cgImg!, scale: 1, orientation: UIImageOrientation.Up)
-        UIImageWriteToSavedPhotosAlbum(uiImg, nil, nil, nil)*/
-        // DO NOT FORGET to release cgImg and uiImg.
     }
 }
