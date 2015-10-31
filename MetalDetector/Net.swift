@@ -143,4 +143,60 @@ public class Net {
         }
         return res
     }
+
+    func FindLayer(layerName: String) -> NetLayer? {
+        for layer in layers {
+            if layer.name == layerName {
+                return layer
+            }
+        }
+        return nil
+    }
+
+    public func ProfileLayer(layerName: String) {
+        var info = mach_timebase_info(numer: 0, denom: 0)
+        mach_timebase_info(&info)
+        let time_base = Double(info.numer) / Double(info.denom)
+        let layer = FindLayer(layerName)
+        if layer == nil {
+            print("ProfileLayer(\"\(layerName)\"): layer not found")
+            exit(1)
+        }
+        var w : MTLBuffer? = nil
+        if layer!.weights != "" {
+            w = weights[layer!.weights]
+            if w == nil {
+                print("Weights \(layer!.weights) for layer \(layer!.name) not found")
+                exit(1)
+            }
+        }
+
+        var sumWorkTimeNs: Double = 0
+        for i in -1...10 {
+            let commandBuffer = engine.commandQueue!.commandBuffer()
+            let startTime = mach_absolute_time()
+            for i in 0...layer!.shards-1 {
+                engine.UnaryLayer(commandBuffer,
+                    name: "\(layer!.name)_\(i)",
+                    weights: w,
+                    input: blobs[layer!.bottoms[0]]!,
+                    output: blobs[layer!.top]!)
+            }
+            commandBuffer.commit();
+            commandBuffer.waitUntilCompleted()
+            let workTimeNs = Double(mach_absolute_time() - startTime) * time_base
+            if commandBuffer.error != nil {
+                print("ProfileLayer(\"\(layerName)\"): command failed: \(commandBuffer.error)")
+                exit(1)
+            }
+            if i > 0 {
+                sumWorkTimeNs += workTimeNs
+                let workTimeMsStr = NSString(format: "%.1f", workTimeNs / 1E6)
+                print("ProfileLayer(\"\(layerName)\"): \(workTimeMsStr) ms")
+            }
+        }
+        let aveWorkTimeNs = sumWorkTimeNs / 10
+        let aveWorkTimeMsStr = NSString(format: "%.1f", aveWorkTimeNs / 1E6)
+        print("ProfileLayer(\"\(layerName)\"): average time is \(aveWorkTimeMsStr) ms")
+    }
 }

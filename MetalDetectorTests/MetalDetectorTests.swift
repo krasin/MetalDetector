@@ -145,17 +145,6 @@ class MetalDetectorTests: XCTestCase {
     }
 
     func testLargeConvolution() {
-        self.measureBlock {
-            for _ in 1...10 {
-                let commandBuffer = self.engine!.commandQueue!.commandBuffer()
-                self.engine!.UnaryLayer(commandBuffer,
-                    name: "inception_4e_3x3_0",
-                    weights: self.net!.weights["inception_4e_3x3"]!,
-                    input: self.net!.blobs["inception_4e_3x3_reduce"]!,
-                    output: self.net!.blobs["inception_4e_3x3"]!)
-                commandBuffer.commit();
-                commandBuffer.waitUntilCompleted()
-            }
-        }
+        net!.ProfileLayer("inception_5a_3x3")
     }
 }
