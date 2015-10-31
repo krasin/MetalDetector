@@ -20,6 +20,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
 
     var previewLayer: AVCaptureVideoPreviewLayer?
     var frameCount = 0
+    var running: Bool = false
 
     var metalDevice: MTLDevice?
     var metalLib: MTLLibrary?
@@ -68,6 +69,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         // Prepare output
         let out = AVCaptureVideoDataOutput()
         out.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_32BGRA)]
+        out.alwaysDiscardsLateVideoFrames = true
         let queue = dispatch_queue_create("input frames queue", DISPATCH_QUEUE_SERIAL)
         out.setSampleBufferDelegate(self, queue:queue)
         if !session.canAddOutput(out) {
@@ -173,7 +175,17 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
             print("Frame #\(self.frameCount)")
         }*/
         self.frameCount++
-        if self.frameCount % 100 != 1 {
+        if self.frameCount < 50 {
+            return
+        }
+        var ok = false
+        objc_sync_enter(self.running)
+        if !self.running {
+            ok = true
+            self.running = true
+        }
+        objc_sync_exit(self.running)
+        if !ok {
             return
         }
 
@@ -223,6 +235,9 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         let label = "\(net!.labels[idx]) - \(prob*100)%"
         let workTime = NSDate().timeIntervalSinceDate(startTime)
         print("net.forward is done within \(workTime) sec")
+        objc_sync_enter(self.running)
+        self.running = false
+        objc_sync_exit(self.running)
 
         print("GoogLeNet: \(label)")
         dispatch_async(dispatch_get_main_queue(), {
