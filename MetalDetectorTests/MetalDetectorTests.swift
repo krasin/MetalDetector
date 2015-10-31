@@ -17,10 +17,14 @@ import MetalDetector
 class MetalDetectorTests: XCTestCase {
     var engine: Engine?
     var net: Net?
+    var cat: MTLTexture?
 
     override func setUp() {
         engine = Engine()
         net = Net(engine: engine!, config: GoogLeNetConfig())
+
+        cat = engine!.GetResourceAsMetalTexture("cat.png")
+        XCTAssert(cat != nil)
         super.setUp()
     }
     
@@ -52,14 +56,7 @@ class MetalDetectorTests: XCTestCase {
     }
 
     func testGoogleNetOnCat() {
-        let input = engine!.GetResourceAsMetalTexture("cat.png")
-        XCTAssert(input != nil)
-        if input == nil {
-            return
-        }
-        XCTAssert(input != nil)
-
-        var ans = net!.forward(input!)
+        var ans = net!.forward(cat!)
         // HACK: find the answer
         for i in 1...5 {
             let (idx, p) = argMax(ans)
@@ -142,9 +139,23 @@ class MetalDetectorTests: XCTestCase {
 
         self.measureBlock {
             for _ in 1...1 {
-                self.net!.forward(input!)
+                self.net!.forward(self.cat!)
             }
         }
     }
 
+    func testLargeConvolution() {
+        self.measureBlock {
+            for _ in 1...10 {
+                let commandBuffer = self.engine!.commandQueue!.commandBuffer()
+                self.engine!.UnaryLayer(commandBuffer,
+                    name: "inception_4e_3x3_0",
+                    weights: self.net!.weights["inception_4e_3x3"]!,
+                    input: self.net!.blobs["inception_4e_3x3_reduce"]!,
+                    output: self.net!.blobs["inception_4e_3x3"]!)
+                commandBuffer.commit();
+                commandBuffer.waitUntilCompleted()
+            }
+        }
+    }
 }

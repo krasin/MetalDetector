@@ -15,7 +15,7 @@ import UIKit
 public class Engine {
     public var metalDevice: MTLDevice?
     var metalLib: MTLLibrary?
-    var commandQueue: MTLCommandQueue?
+    public var commandQueue: MTLCommandQueue?
     var textureCache : Unmanaged<CVMetalTextureCacheRef>?
 
     var kernelStates : [String: MTLComputePipelineState?]
