@@ -113,11 +113,13 @@ public class Net {
                 }
             }
             for i in 0...layer.shards-1 {
+                let threadsPerThreadgroup = MTLSizeMake(16, 16, 1)
                 engine.UnaryLayer(commandBuffer,
                     name: "\(layer.name)_\(i)",
                     weights: w,
                     input: blobs[layer.bottoms[0]]!,
-                    output: blobs[layer.top]!)
+                    output: blobs[layer.top]!,
+                    threadsPerThreadgroup: threadsPerThreadgroup)
             }
         }
 
@@ -176,11 +178,13 @@ public class Net {
             let commandBuffer = engine.commandQueue!.commandBuffer()
             let startTime = mach_absolute_time()
             for i in 0...layer!.shards-1 {
+                let threadsPerThreadgroup = MTLSizeMake(16, 16, 1)
                 engine.UnaryLayer(commandBuffer,
                     name: "\(layer!.name)_\(i)",
                     weights: w,
                     input: blobs[layer!.bottoms[0]]!,
-                    output: blobs[layer!.top]!)
+                    output: blobs[layer!.top]!,
+                    threadsPerThreadgroup: threadsPerThreadgroup)
             }
             commandBuffer.commit();
             commandBuffer.waitUntilCompleted()

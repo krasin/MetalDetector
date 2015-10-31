@@ -57,7 +57,7 @@ public class Engine {
     }
 
     public func UnaryLayer(commandBuffer : MTLCommandBuffer, name : String, weights : MTLBuffer?,
-        input : MTLTexture, output : MTLTexture) { 
+        input : MTLTexture, output : MTLTexture, threadsPerThreadgroup: MTLSize) {
         let state = loadKernelState(name)
         let commandEncoder = commandBuffer.computeCommandEncoder()
         commandEncoder.setComputePipelineState(state)
@@ -66,7 +66,6 @@ public class Engine {
         if weights != nil {
             commandEncoder.setBuffer(weights!, offset: 0, atIndex: 0)
         }
-        let threadsPerThreadgroup = MTLSizeMake(16, 16, 1)
         let threadgroupsPerGrid = MTLSizeMake(
             ((output.width + threadsPerThreadgroup.width - 1) / threadsPerThreadgroup.width),
             (output.height + threadsPerThreadgroup.height - 1) / threadsPerThreadgroup.height, 1)
@@ -93,7 +92,9 @@ public class Engine {
     }
 
     func Preprocess(commandBuffer : MTLCommandBuffer, input : MTLTexture, output : MTLTexture) {
-        UnaryLayer(commandBuffer, name: "preprocess", weights: nil, input: input, output: output)
+        let threadsPerThreadgroup = MTLSizeMake(16, 16, 1)
+        UnaryLayer(commandBuffer, name: "preprocess", weights: nil, input: input,
+            output: output, threadsPerThreadgroup: threadsPerThreadgroup)
     }
 
     // L1 computes L1 metric. It requires a 2d float texture array as an input.
