@@ -124,7 +124,8 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
 
     private func initMetal() {
         engine = Engine()
-        net = Net(engine: engine!, config: GoogLeNetConfig())
+        net = Net(engine: engine!, config: GoogLeNetConfig(),
+            threadsPerThreadgroup: GoogLeNetProfile.GetThreadsPerThreadgroup())
         metalDevice = MTLCreateSystemDefaultDevice()
         CVMetalTextureCacheCreate(kCFAllocatorDefault, nil, metalDevice!, nil, &textureCache)
         metalLib = metalDevice!.newDefaultLibrary()!

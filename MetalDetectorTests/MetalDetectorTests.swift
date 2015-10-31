@@ -21,7 +21,8 @@ class MetalDetectorTests: XCTestCase {
 
     override func setUp() {
         engine = Engine()
-        net = Net(engine: engine!, config: GoogLeNetConfig())
+        net = Net(engine: engine!, config: GoogLeNetConfig(),
+            threadsPerThreadgroup: GoogLeNetProfile.GetThreadsPerThreadgroup())
 
         cat = engine!.GetResourceAsMetalTexture("cat.png")
         XCTAssert(cat != nil)
@@ -145,6 +146,11 @@ class MetalDetectorTests: XCTestCase {
     }
 
     func testLargeConvolution() {
-        net!.ProfileLayer("inception_5a_3x3")
+        for layer in net!.layers {
+            if layer.shards == 0 || layer.bottoms.count > 1 {
+                continue
+            }
+            net!.ProfileLayer(layer.name)
+        }
     }
 }

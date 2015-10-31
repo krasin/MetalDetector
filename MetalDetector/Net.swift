@@ -63,11 +63,11 @@ public func loadLabels(named: String) -> [String] {
 }
 
 public struct NetLayer {
-    var name: String
-    var weights: String
-    var shards: Int
-    var top: String
-    var bottoms: [String]
+    public var name: String
+    public var weights: String
+    public var shards: Int
+    public var top: String
+    public var bottoms: [String]
 }
 
 public protocol NetConfig {
@@ -81,16 +81,18 @@ public class Net {
     public var layers : [NetLayer]
     public var blobs : [String: MTLTexture]
     public var weights : [String: MTLBuffer]
+    public var threadsPerThreadgroup: [String: MTLSize]
     public var labels : [String]
 
     public var L1 = [String: Float]()
     public var L2 = [String: Float]()
 
-    public init(engine: Engine, config: NetConfig) {
+    public init(engine: Engine, config: NetConfig, threadsPerThreadgroup: [String: MTLSize]) {
         self.engine = engine
         self.layers = config.GetLayers()
         self.blobs = config.CreateBlobs(engine.metalDevice!)
         self.weights = config.CreateWeights(engine.metalDevice!)
+        self.threadsPerThreadgroup = threadsPerThreadgroup
         self.labels = loadLabels("synset_words.txt")
         print("Loaded \(self.labels.count) labels")
     }
@@ -113,13 +115,18 @@ public class Net {
                 }
             }
             for i in 0...layer.shards-1 {
-                let threadsPerThreadgroup = MTLSizeMake(16, 16, 1)
+                var cell = self.threadsPerThreadgroup[layer.name]
+                if cell == nil {
+                    cell = MTLSizeMake(16, 16, 1)
+                } else {
+                    //print("Using profiled cell size for layer \(layer.name): \(cell!.width)x\(cell!.height)x\(cell!.depth)")
+                }
                 engine.UnaryLayer(commandBuffer,
                     name: "\(layer.name)_\(i)",
                     weights: w,
                     input: blobs[layer.bottoms[0]]!,
                     output: blobs[layer.top]!,
-                    threadsPerThreadgroup: threadsPerThreadgroup)
+                    threadsPerThreadgroup: cell!)
             }
         }
 
@@ -155,10 +162,48 @@ public class Net {
         return nil
     }
 
-    public func ProfileLayer(layerName: String) {
+    func tryLayer(layer: NetLayer, w: MTLBuffer?, threadsPerThreadgroup: MTLSize) -> Double? {
+        if threadsPerThreadgroup.depth != 1 {
+            return nil
+        }
+        let total = threadsPerThreadgroup.width * threadsPerThreadgroup.height * threadsPerThreadgroup.depth
+        if total > 512 {
+            // TODO: dynamically query this parameter.
+            return nil
+        }
         var info = mach_timebase_info(numer: 0, denom: 0)
         mach_timebase_info(&info)
         let time_base = Double(info.numer) / Double(info.denom)
+        var sumWorkTimeNs: Double = 0
+        for i in -1...10 {
+            let commandBuffer = engine.commandQueue!.commandBuffer()
+            let startTime = mach_absolute_time()
+            for i in 0...layer.shards-1 {
+                engine.UnaryLayer(commandBuffer,
+                    name: "\(layer.name)_\(i)",
+                    weights: w,
+                    input: blobs[layer.bottoms[0]]!,
+                    output: blobs[layer.top]!,
+                    threadsPerThreadgroup: threadsPerThreadgroup)
+            }
+            commandBuffer.commit();
+            commandBuffer.waitUntilCompleted()
+            let workTimeNs = Double(mach_absolute_time() - startTime) * time_base
+            if commandBuffer.error != nil {
+                return nil
+            }
+            if i > 0 {
+                // TODO: exclude outliers, compute std deviation.
+                sumWorkTimeNs += workTimeNs
+                //let workTimeMsStr = NSString(format: "%.1f", workTimeNs / 1E6)
+                //print("tryLayer(\"\(layer.name)\"): \(workTimeMsStr) ms")
+            }
+        }
+        let aveWorkTimeNs = sumWorkTimeNs / 10
+        return aveWorkTimeNs
+    }
+
+    public func ProfileLayer(layerName: String) {
         let layer = FindLayer(layerName)
         if layer == nil {
             print("ProfileLayer(\"\(layerName)\"): layer not found")
@@ -172,35 +217,43 @@ public class Net {
                 exit(1)
             }
         }
+        let cells: [MTLSize] = [ MTLSizeMake(16, 16, 1), MTLSizeMake(8, 8, 1), MTLSizeMake(16, 8, 1),
+            MTLSizeMake(8, 16, 1), MTLSizeMake(32, 16, 1), MTLSizeMake(16, 32, 1), MTLSizeMake(32, 32, 1),
+            MTLSizeMake(4, 4, 1), MTLSizeMake(8, 4, 1), MTLSizeMake(4, 8, 1), MTLSizeMake(3, 3, 1),
+            MTLSizeMake(4, 3, 1), MTLSizeMake(3, 4, 1), MTLSizeMake(4, 2, 1), MTLSizeMake(2, 4, 1),
+            MTLSizeMake(2, 2, 1), MTLSizeMake(1, 1, 1), MTLSizeMake(2, 1, 1), MTLSizeMake(1, 2, 1),
+            MTLSizeMake(3, 1, 1), MTLSizeMake(4, 1, 1)]
 
-        var sumWorkTimeNs: Double = 0
-        for i in -1...10 {
-            let commandBuffer = engine.commandQueue!.commandBuffer()
-            let startTime = mach_absolute_time()
-            for i in 0...layer!.shards-1 {
-                let threadsPerThreadgroup = MTLSizeMake(16, 16, 1)
-                engine.UnaryLayer(commandBuffer,
-                    name: "\(layer!.name)_\(i)",
-                    weights: w,
-                    input: blobs[layer!.bottoms[0]]!,
-                    output: blobs[layer!.top]!,
-                    threadsPerThreadgroup: threadsPerThreadgroup)
+        var firstTimeNs: Double = 0
+        var minTimeNs: Double = 0
+        var bestCell: MTLSize?
+        for cell in cells {
+            let layerTimeNs = tryLayer(layer!, w: w, threadsPerThreadgroup: cell)
+            if layerTimeNs == nil {
+                // print("ProfileLayer(\"\(layer!.name)\"), cell: \(cell): failed")
+                continue
             }
-            commandBuffer.commit();
-            commandBuffer.waitUntilCompleted()
-            let workTimeNs = Double(mach_absolute_time() - startTime) * time_base
-            if commandBuffer.error != nil {
-                print("ProfileLayer(\"\(layerName)\"): command failed: \(commandBuffer.error)")
-                exit(1)
+            if bestCell == nil {
+                minTimeNs = layerTimeNs!
+                firstTimeNs = layerTimeNs!
+                bestCell = cell
+                continue
             }
-            if i > 0 {
-                sumWorkTimeNs += workTimeNs
-                let workTimeMsStr = NSString(format: "%.1f", workTimeNs / 1E6)
-                print("ProfileLayer(\"\(layerName)\"): \(workTimeMsStr) ms")
+            // We want to be conservative about choosing alternative cell size.
+            // There must be at least 5% improvement over the default choice of 16x16x1.
+            if 0.95 * firstTimeNs > layerTimeNs && minTimeNs > layerTimeNs {
+                minTimeNs = layerTimeNs!
+                bestCell = cell
             }
+            // let layerTimeMsStr = NSString(format: "%.1f", layerTimeNs! / 1E6)
+            // print("ProfileLayer(\"\(layer!.name)\"), cell: \(cell): \(layerTimeMsStr) ms")
         }
-        let aveWorkTimeNs = sumWorkTimeNs / 10
-        let aveWorkTimeMsStr = NSString(format: "%.1f", aveWorkTimeNs / 1E6)
-        print("ProfileLayer(\"\(layerName)\"): average time is \(aveWorkTimeMsStr) ms")
+        let minTimeMsStr = NSString(format: "%.1f", minTimeNs / 1E6)
+        let firstTimeMsStr = NSString(format: "%.1f", firstTimeNs / 1E6)
+        //print("\"\(layer!.name)\", best cell: \(bestCell!.width)x\(bestCell!.height)x\(bestCell!.depth), \(minTimeMsStr) ms vs \(firstTimeMsStr) ms for 16x16x1")
+        // "inception_5b_pool_proj": MTLSizeMake(3, 3, 1),
+        if bestCell!.width != 16 || bestCell!.height != 16 || bestCell!.depth != 1 {
+          print("\"\(layer!.name)\": MTLSizeMake(\(bestCell!.width), \(bestCell!.height), \(bestCell!.depth)), // \(minTimeMsStr) ms vs \(firstTimeMsStr) ms for 16x16x1")
+        }
     }
 }

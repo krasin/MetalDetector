@@ -11,6 +11,7 @@
 		BB03AB501BE0943900FBE9B6 /* synset_words.txt in Resources */ = {isa = PBXBuildFile; fileRef = BB03AB4F1BE0943900FBE9B6 /* synset_words.txt */; };
 		BB3D671E1BD0691B00FE349F /* GoogLeNet.gen.metal in Sources */ = {isa = PBXBuildFile; fileRef = BB3D671D1BD0691B00FE349F /* GoogLeNet.gen.metal */; };
 		BB3D67201BD4B45100FE349F /* GoogLeNet.gen.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3D671F1BD4B45100FE349F /* GoogLeNet.gen.swift */; };
+		BB7F5B551BE55AA20054592E /* GoogLeNetProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7F5B541BE55AA20054592E /* GoogLeNetProfile.swift */; };
 		BBAE5A6E1BBE46CE00AD54A1 /* MetalDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAE5A6D1BBE46CE00AD54A1 /* MetalDetectorTests.swift */; };
 		BBAE5A761BC6DC4B00AD54A1 /* Net.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAE5A751BC6DC4B00AD54A1 /* Net.swift */; };
 		BBAE5A781BC7794700AD54A1 /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAE5A771BC7794700AD54A1 /* Engine.swift */; };
@@ -37,6 +38,7 @@
 		BB03AB4F1BE0943900FBE9B6 /* synset_words.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = synset_words.txt; sourceTree = "<group>"; };
 		BB3D671D1BD0691B00FE349F /* GoogLeNet.gen.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = GoogLeNet.gen.metal; sourceTree = "<group>"; };
 		BB3D671F1BD4B45100FE349F /* GoogLeNet.gen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GoogLeNet.gen.swift; sourceTree = "<group>"; };
+		BB7F5B541BE55AA20054592E /* GoogLeNetProfile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GoogLeNetProfile.swift; sourceTree = "<group>"; };
 		BBAE5A6B1BBE46CE00AD54A1 /* MetalDetectorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MetalDetectorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BBAE5A6D1BBE46CE00AD54A1 /* MetalDetectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalDetectorTests.swift; sourceTree = "<group>"; };
 		BBAE5A6F1BBE46CE00AD54A1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -113,6 +115,7 @@
 				BBFDDBCB1BBCFA94005C21CF /* Engine.metal */,
 				BBAE5A751BC6DC4B00AD54A1 /* Net.swift */,
 				BBAE5A771BC7794700AD54A1 /* Engine.swift */,
+				BB7F5B541BE55AA20054592E /* GoogLeNetProfile.swift */,
 			);
 			path = MetalDetector;
 			sourceTree = "<group>";
@@ -233,6 +236,7 @@
 				BBAE5A781BC7794700AD54A1 /* Engine.swift in Sources */,
 				BB3D671E1BD0691B00FE349F /* GoogLeNet.gen.metal in Sources */,
 				BB3D67201BD4B45100FE349F /* GoogLeNet.gen.swift in Sources */,
+				BB7F5B551BE55AA20054592E /* GoogLeNetProfile.swift in Sources */,
 				BBAE5A761BC6DC4B00AD54A1 /* Net.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
