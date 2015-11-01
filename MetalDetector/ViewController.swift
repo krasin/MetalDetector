@@ -123,12 +123,17 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         outputBGRA = metalDevice!.newTextureWithDescriptor(outputDescBGRA)
     }
 
-    func argMax(arr : [Float]) -> (Int, Float) {
+    func argMax(arr : [Float], labels: [String]) -> (Int, Float) {
         var maxv : Float = arr[0]
         var idx : Int = 0
         for i in 0...arr.count-1 {
-            if arr[i] > maxv {
-                maxv = arr[i]
+            var cur = arr[i]
+            if labels[i].hasPrefix("-") {
+                // Penaltize the label, as it's very unlikely
+                cur /= 6
+            }
+            if cur > maxv {
+                maxv = cur
                 idx = i
             }
         }
@@ -138,20 +143,19 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     func captureOutput(captureOutput: AVCaptureOutput!,
             didOutputSampleBuffer sampleBuffer: CMSampleBuffer!,
             fromConnection connection: AVCaptureConnection!) {
+        objc_sync_enter(self)
+        if self.running {
+            objc_sync_exit(self)
+            return
+        }
         self.frameCount++
-        if self.frameCount < 50 {
+        if self.frameCount < 2 {
+            objc_sync_exit(self)
             return
         }
-        var ok = false
-        objc_sync_enter(self.running)
-        if !self.running {
-            ok = true
-            self.running = true
-        }
-        objc_sync_exit(self.running)
-        if !ok {
-            return
-        }
+        self.running = true
+        self.frameCount = 0
+        objc_sync_exit(self)
 
         let buf = CMSampleBufferGetImageBuffer(sampleBuffer)
         var texture : Unmanaged<CVMetalTextureRef>?
@@ -172,14 +176,19 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         // Run Metal shaders on the input and fill the output
         let startTime = NSDate()
 
-        let ans = net!.forward(input!)
-        let (idx, prob) = argMax(ans)
-        let label = "\(net!.labels[idx]) - \(prob*100)%"
+        var ans = net!.forward(input!)
+        let (idx, prob) = argMax(ans, labels: net!.labels)
+        ans[idx] = 0
+        let (idx2, prob2) = argMax(ans, labels: net!.labels)
+        var label = ""
+        if prob > 0.1 {
+            label = "\(net!.labels[idx]): \(prob*100)%, \(net!.labels[idx2]): \(prob2*100)%"
+        }
         let workTime = NSDate().timeIntervalSinceDate(startTime)
         print("net.forward is done within \(workTime) sec")
-        objc_sync_enter(self.running)
+        objc_sync_enter(self)
         self.running = false
-        objc_sync_exit(self.running)
+        objc_sync_exit(self)
 
         print("GoogLeNet: \(label)")
         dispatch_async(dispatch_get_main_queue(), {
