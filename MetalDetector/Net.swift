@@ -142,14 +142,7 @@ public class Net {
 
         //print("Status: \(commandBuffer.status.rawValue)")
         //print("May be error: \(commandBuffer.error)")
-
-        //printStats("data", blob: data)
-        //printStats("conv1_7x7_s2", blob: conv1_7x7_s2)
-        var res = Array<Float>(count: 1000, repeatedValue: 0)
-        for i in 0...res.count-1 {
-            blobs["prob"]!.getBytes(&res[i], bytesPerRow: 4, bytesPerImage: 4,
-                fromRegion: MTLRegionMake2D(0, 0, 1, 1), mipmapLevel: 0, slice: i)
-        }
+        let res = engine.ExtractResult(blobs["prob"]!)
         return res
     }
 

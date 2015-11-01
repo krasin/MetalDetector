@@ -219,4 +219,28 @@ public class Engine {
         }
         return res
     }
+
+    public func ExtractResult(input: MTLTexture) -> [Float] {
+        let commandBuffer = commandQueue!.commandBuffer()
+        let commandEncoder = commandBuffer.computeCommandEncoder()
+        let state = loadKernelState("array1x1_to_buffer_0")
+        commandEncoder.setComputePipelineState(state)
+        commandEncoder.setTexture(input, atIndex: 0)
+        let resBuf = metalDevice!.newBufferWithLength(4 * input.arrayLength, options: .StorageModeShared)
+        commandEncoder.setBuffer(resBuf, offset: 0, atIndex: 0)
+        let threadsPerThreadgroup = MTLSizeMake(32, 1, 1)
+        let tpgx = (input.arrayLength + threadsPerThreadgroup.width - 1) / threadsPerThreadgroup.width;
+        let threadgroupsPerGrid = MTLSizeMake(tpgx, 1, 1)
+        commandEncoder.dispatchThreadgroups(threadgroupsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
+        commandEncoder.endEncoding()
+        commandBuffer.commit();
+        commandBuffer.waitUntilCompleted()
+
+        let resArr = UnsafeMutablePointer<Float>(resBuf.contents())
+        var res : [Float] = [Float](count: input.arrayLength, repeatedValue: 0)
+        for i in 0...input.arrayLength - 1 {
+            res[i] = resArr[i]
+        }
+        return res
+    }
 }

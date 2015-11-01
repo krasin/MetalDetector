@@ -163,3 +163,14 @@ kernel void prob_0(texture2d_array<float, access::read> in [[texture(0)]],
         out.write(res, uint2(0, 0), x);
     }
 }
+
+// Converts a texture 1x1xarray_length into a buffer.
+kernel void array1x1_to_buffer_0(texture2d_array<float, access::read> in [[texture(0)]],
+                                 device float* out [[buffer(0)]],
+                                 uint2 gid [[thread_position_in_grid]]) {
+    if (gid.x >= in.get_array_size()) {
+        return;
+    }
+    float v = in.read(uint2(0, 0), gid.x)[0];
+    out[gid.x] = v;
+}
