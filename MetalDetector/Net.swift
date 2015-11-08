@@ -14,7 +14,7 @@ func initBlob(device : MTLDevice, channels : Int, height : Int, width : Int) -> 
     desc.textureType = MTLTextureType.Type2DArray
     desc.height = height
     desc.width = width
-    desc.pixelFormat = MTLPixelFormat.R32Float
+    desc.pixelFormat = MTLPixelFormat.R16Float
     desc.arrayLength = channels
     return device.newTextureWithDescriptor(desc)
 }
@@ -25,7 +25,7 @@ func initBufferFromBundle(device : MTLDevice, named: String) -> MTLBuffer {
 }
 
 func subBlob(input : MTLTexture, from : Int, to : Int) -> MTLTexture {
-    return input.newTextureViewWithPixelFormat(MTLPixelFormat.R32Float,
+    return input.newTextureViewWithPixelFormat(MTLPixelFormat.R16Float,
             textureType: MTLTextureType.Type2DArray,
             levels: NSMakeRange(0, 1),
             slices: NSMakeRange(from, to-from))

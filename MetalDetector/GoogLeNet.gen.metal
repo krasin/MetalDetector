@@ -1,8 +1,8 @@
 #include <metal_stdlib>
 using namespace metal;
 
-static void max_pool(texture2d_array<float, access::read> in,
-                     texture2d_array<float, access::write> out,
+static void max_pool(texture2d_array<half, access::read> in,
+                     texture2d_array<half, access::write> out,
                      uint2 gid,
                      int kernelH, int kernelW, int strideH, int strideW,
                      int padH, int padW) {
@@ -13,7 +13,7 @@ static void max_pool(texture2d_array<float, access::read> in,
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
 
     for (uint f = 0; f < in.get_array_size(); f++) {
-        float v = in.read(uint2(x, y), f)[0];
+        half v = in.read(uint2(x, y), f)[0];
         for (int yy = y-kernelH/2; yy <= y+kernelH/2; yy++) {
             if (yy < 0 || yy >= int(in.get_height())) {
                 continue;
@@ -22,7 +22,7 @@ static void max_pool(texture2d_array<float, access::read> in,
                 if (xx < 0 || xx >= int(in.get_width())) {
                     continue;
                 }
-                float cur = in.read(uint2(xx, yy), f)[0];
+                half cur = in.read(uint2(xx, yy), f)[0];
                 if (cur > v) {
                     v = cur;
                 }
@@ -32,8 +32,8 @@ static void max_pool(texture2d_array<float, access::read> in,
     }
 }
 
-static void ave_pool(texture2d_array<float, access::read> in,
-                     texture2d_array<float, access::write> out,
+static void ave_pool(texture2d_array<half, access::read> in,
+                     texture2d_array<half, access::write> out,
                      uint2 gid,
                      int kernelH, int kernelW, int strideH, int strideW,
                      int padH, int padW) {
@@ -60,8 +60,8 @@ static void ave_pool(texture2d_array<float, access::read> in,
     }
 }
 
-static void cross_channel_lrn(texture2d_array<float, access::read> in,
-                              texture2d_array<float, access::write> out,
+static void cross_channel_lrn(texture2d_array<half, access::read> in,
+                              texture2d_array<half, access::write> out,
                               uint2 gid,
                               int local_size, float alpha, float beta) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) {
@@ -102,8 +102,8 @@ constant half conv1_7x7_s2_bias[] = {
     3.402357, -2.447811, -2.605467, 0.235679, -2.594265, -5.335870, -5.118693, -7.981039,
 };
 
-kernel void conv1_7x7_s2_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void conv1_7x7_s2_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     const int kernelH = 7;
@@ -123,9 +123,9 @@ kernel void conv1_7x7_s2_0(texture2d_array<float, access::read> in [[texture(0)]
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 224 && x+dx >= 0 && x+dx < 224) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -138,13 +138,13 @@ kernel void conv1_7x7_s2_0(texture2d_array<float, access::read> in [[texture(0)]
 
     for (int f = 0; f < 64; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
 
-kernel void pool1_3x3_s2_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void pool1_3x3_s2_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          uint2 gid [[thread_position_in_grid]]) {
     const int kernelH = 3;
     const int kernelW = 3;
@@ -155,8 +155,8 @@ kernel void pool1_3x3_s2_0(texture2d_array<float, access::read> in [[texture(0)]
     max_pool(in, out, gid, kernelH, kernelW, strideH, strideW, padH, padW);
 }
 
-kernel void pool1_norm1_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void pool1_norm1_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          uint2 gid [[thread_position_in_grid]]) {
     const int local_size = 5;
     const float alpha = 0.000100;
@@ -175,8 +175,8 @@ constant half conv2_3x3_reduce_bias[] = {
     1.247302, -0.093687, 1.122774, 0.817257, -0.532370, 0.661138, 0.271513, -0.147721,
 };
 
-kernel void conv2_3x3_reduce_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void conv2_3x3_reduce_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -197,9 +197,9 @@ kernel void conv2_3x3_reduce_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 56 && x+dx >= 0 && x+dx < 56) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -212,7 +212,7 @@ kernel void conv2_3x3_reduce_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 64; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -244,8 +244,8 @@ constant half conv2_3x3_bias[] = {
     0.092427, -0.061722, -0.040117, -0.067746, 0.844944, -0.097982, 0.354183, 0.897184,
 };
 
-kernel void conv2_3x3_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void conv2_3x3_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -266,9 +266,9 @@ kernel void conv2_3x3_0(texture2d_array<float, access::read> in [[texture(0)]],
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 56 && x+dx >= 0 && x+dx < 56) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 192; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -281,13 +281,13 @@ kernel void conv2_3x3_0(texture2d_array<float, access::read> in [[texture(0)]],
 
     for (int f = 0; f < 192; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
 
-kernel void conv2_norm2_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void conv2_norm2_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          uint2 gid [[thread_position_in_grid]]) {
     const int local_size = 5;
     const float alpha = 0.000100;
@@ -295,8 +295,8 @@ kernel void conv2_norm2_0(texture2d_array<float, access::read> in [[texture(0)]]
     cross_channel_lrn(in, out, gid, local_size, alpha, beta);
 }
 
-kernel void pool2_3x3_s2_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void pool2_3x3_s2_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          uint2 gid [[thread_position_in_grid]]) {
     const int kernelH = 3;
     const int kernelW = 3;
@@ -318,8 +318,8 @@ constant half inception_3a_1x1_bias[] = {
     0.099112, 0.002090, 0.417921, 0.147452, 0.276963, 0.399921, 0.228397, -0.245762,
 };
 
-kernel void inception_3a_1x1_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_3a_1x1_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -340,9 +340,9 @@ kernel void inception_3a_1x1_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -355,7 +355,7 @@ kernel void inception_3a_1x1_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 64; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -375,8 +375,8 @@ constant half inception_3a_3x3_reduce_bias[] = {
     1.512146, -0.217145, 0.331512, -0.200594, -0.344177, -0.154807, -0.034828, -0.122621,
 };
 
-kernel void inception_3a_3x3_reduce_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_3a_3x3_reduce_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -397,9 +397,9 @@ kernel void inception_3a_3x3_reduce_0(texture2d_array<float, access::read> in [[
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 96; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -412,7 +412,7 @@ kernel void inception_3a_3x3_reduce_0(texture2d_array<float, access::read> in [[
 
     for (int f = 0; f < 96; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -436,8 +436,8 @@ constant half inception_3a_3x3_bias[] = {
     0.466768, 0.048544, 0.037765, 0.063393, -0.073878, -0.064708, -0.132981, -0.058425,
 };
 
-kernel void inception_3a_3x3_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_3a_3x3_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -458,9 +458,9 @@ kernel void inception_3a_3x3_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -473,7 +473,7 @@ kernel void inception_3a_3x3_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 128; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -483,8 +483,8 @@ constant half inception_3a_5x5_reduce_bias[] = {
     -0.005802, 1.212135, 0.429293, 0.189353, 0.143700, 0.608470, -0.139362, 0.213858,
 };
 
-kernel void inception_3a_5x5_reduce_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_3a_5x5_reduce_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -505,9 +505,9 @@ kernel void inception_3a_5x5_reduce_0(texture2d_array<float, access::read> in [[
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 16; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -520,7 +520,7 @@ kernel void inception_3a_5x5_reduce_0(texture2d_array<float, access::read> in [[
 
     for (int f = 0; f < 16; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -532,8 +532,8 @@ constant half inception_3a_5x5_bias[] = {
     0.056696, 0.240434, -0.097851, 0.449390, 0.324670, -0.057889, 0.040809, 0.015824,
 };
 
-kernel void inception_3a_5x5_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_3a_5x5_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -554,9 +554,9 @@ kernel void inception_3a_5x5_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 32; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -569,13 +569,13 @@ kernel void inception_3a_5x5_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 32; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
 
-kernel void inception_3a_pool_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_3a_pool_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          uint2 gid [[thread_position_in_grid]]) {
     const int kernelH = 3;
     const int kernelW = 3;
@@ -593,8 +593,8 @@ constant half inception_3a_pool_proj_bias[] = {
     0.460996, 0.541627, 0.382924, 0.211163, 0.423665, 0.153273, 0.537126, 0.420518,
 };
 
-kernel void inception_3a_pool_proj_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_3a_pool_proj_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -615,9 +615,9 @@ kernel void inception_3a_pool_proj_0(texture2d_array<float, access::read> in [[t
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 32; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -630,7 +630,7 @@ kernel void inception_3a_pool_proj_0(texture2d_array<float, access::read> in [[t
 
     for (int f = 0; f < 32; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -654,8 +654,8 @@ constant half inception_3b_1x1_bias[] = {
     0.186714, 0.080251, 0.942741, -0.052523, 0.417881, 0.354804, -0.169631, 0.069935,
 };
 
-kernel void inception_3b_1x1_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_3b_1x1_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -676,9 +676,9 @@ kernel void inception_3b_1x1_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -691,7 +691,7 @@ kernel void inception_3b_1x1_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 128; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -715,8 +715,8 @@ constant half inception_3b_3x3_reduce_bias[] = {
     -0.566681, 0.752849, -0.116033, -0.042913, 0.277491, 0.290845, 0.608392, 0.475003,
 };
 
-kernel void inception_3b_3x3_reduce_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_3b_3x3_reduce_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -737,9 +737,9 @@ kernel void inception_3b_3x3_reduce_0(texture2d_array<float, access::read> in [[
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -752,7 +752,7 @@ kernel void inception_3b_3x3_reduce_0(texture2d_array<float, access::read> in [[
 
     for (int f = 0; f < 128; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -784,8 +784,8 @@ constant half inception_3b_3x3_bias[] = {
     0.211352, 0.439408, 0.268901, 0.362824, 0.036533, 0.206510, -0.002426, 0.369396,
 };
 
-kernel void inception_3b_3x3_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_3b_3x3_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -806,9 +806,9 @@ kernel void inception_3b_3x3_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 192; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -821,7 +821,7 @@ kernel void inception_3b_3x3_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 192; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -833,8 +833,8 @@ constant half inception_3b_5x5_reduce_bias[] = {
     0.799337, 0.735961, 0.245328, 0.947288, 0.722371, 0.259402, 0.085483, 0.256312,
 };
 
-kernel void inception_3b_5x5_reduce_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_3b_5x5_reduce_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -855,9 +855,9 @@ kernel void inception_3b_5x5_reduce_0(texture2d_array<float, access::read> in [[
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 32; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -870,7 +870,7 @@ kernel void inception_3b_5x5_reduce_0(texture2d_array<float, access::read> in [[
 
     for (int f = 0; f < 32; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -890,8 +890,8 @@ constant half inception_3b_5x5_bias[] = {
     0.048684, -0.013200, 0.180205, 0.383765, 0.351673, -0.138268, -0.006922, 0.237328,
 };
 
-kernel void inception_3b_5x5_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_3b_5x5_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -912,9 +912,9 @@ kernel void inception_3b_5x5_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 96; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -927,13 +927,13 @@ kernel void inception_3b_5x5_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 96; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
 
-kernel void inception_3b_pool_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_3b_pool_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          uint2 gid [[thread_position_in_grid]]) {
     const int kernelH = 3;
     const int kernelW = 3;
@@ -955,8 +955,8 @@ constant half inception_3b_pool_proj_bias[] = {
     0.327808, 0.122926, 0.083257, 0.502988, 0.157476, 0.271984, 0.237958, 0.294487,
 };
 
-kernel void inception_3b_pool_proj_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_3b_pool_proj_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -977,9 +977,9 @@ kernel void inception_3b_pool_proj_0(texture2d_array<float, access::read> in [[t
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 28 && x+dx >= 0 && x+dx < 28) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -992,13 +992,13 @@ kernel void inception_3b_pool_proj_0(texture2d_array<float, access::read> in [[t
 
     for (int f = 0; f < 64; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
 
-kernel void pool3_3x3_s2_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void pool3_3x3_s2_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          uint2 gid [[thread_position_in_grid]]) {
     const int kernelH = 3;
     const int kernelW = 3;
@@ -1036,8 +1036,8 @@ constant half inception_4a_1x1_bias[] = {
     -0.157289, 0.765137, -0.112530, 0.102027, -0.025701, 0.310938, 0.223109, 0.543163,
 };
 
-kernel void inception_4a_1x1_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4a_1x1_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -1058,9 +1058,9 @@ kernel void inception_4a_1x1_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 192; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -1073,7 +1073,7 @@ kernel void inception_4a_1x1_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 192; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -1093,8 +1093,8 @@ constant half inception_4a_3x3_reduce_bias[] = {
     0.231384, -0.098127, 1.106672, 0.450837, -0.093429, 0.235329, 0.329361, 0.732357,
 };
 
-kernel void inception_4a_3x3_reduce_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4a_3x3_reduce_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -1115,9 +1115,9 @@ kernel void inception_4a_3x3_reduce_0(texture2d_array<float, access::read> in [[
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 96; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -1130,7 +1130,7 @@ kernel void inception_4a_3x3_reduce_0(texture2d_array<float, access::read> in [[
 
     for (int f = 0; f < 96; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -1164,8 +1164,8 @@ constant half inception_4a_3x3_bias[] = {
     0.095368, 0.387375, 0.320423, 0.149914, 0.325786, 0.553327, 0.466260, 0.355189,
 };
 
-kernel void inception_4a_3x3_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4a_3x3_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -1186,9 +1186,9 @@ kernel void inception_4a_3x3_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 208; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -1201,7 +1201,7 @@ kernel void inception_4a_3x3_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 208; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -1211,8 +1211,8 @@ constant half inception_4a_5x5_reduce_bias[] = {
     0.217476, 0.764576, 1.205428, 1.136084, 0.561078, 0.684667, 0.402248, 1.042604,
 };
 
-kernel void inception_4a_5x5_reduce_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4a_5x5_reduce_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -1233,9 +1233,9 @@ kernel void inception_4a_5x5_reduce_0(texture2d_array<float, access::read> in [[
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 16; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -1248,7 +1248,7 @@ kernel void inception_4a_5x5_reduce_0(texture2d_array<float, access::read> in [[
 
     for (int f = 0; f < 16; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -1262,8 +1262,8 @@ constant half inception_4a_5x5_bias[] = {
     0.242759, 0.365260, 0.306641, 0.593387, 0.615900, 0.264461, 0.355654, 0.152631,
 };
 
-kernel void inception_4a_5x5_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4a_5x5_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -1284,9 +1284,9 @@ kernel void inception_4a_5x5_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 48; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -1299,13 +1299,13 @@ kernel void inception_4a_5x5_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 48; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
 
-kernel void inception_4a_pool_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4a_pool_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          uint2 gid [[thread_position_in_grid]]) {
     const int kernelH = 3;
     const int kernelW = 3;
@@ -1327,8 +1327,8 @@ constant half inception_4a_pool_proj_bias[] = {
     0.612177, 0.435756, 0.322302, 0.471047, 0.241324, 0.047487, 0.294849, 0.455967,
 };
 
-kernel void inception_4a_pool_proj_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4a_pool_proj_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -1349,9 +1349,9 @@ kernel void inception_4a_pool_proj_0(texture2d_array<float, access::read> in [[t
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -1364,7 +1364,7 @@ kernel void inception_4a_pool_proj_0(texture2d_array<float, access::read> in [[t
 
     for (int f = 0; f < 64; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -1392,8 +1392,8 @@ constant half inception_4b_1x1_bias[] = {
     2.436814, 0.341296, 1.193733, 0.921636, 0.570421, 0.404675, 0.910326, 2.492461,
 };
 
-kernel void inception_4b_1x1_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4b_1x1_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -1414,9 +1414,9 @@ kernel void inception_4b_1x1_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 160; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -1429,7 +1429,7 @@ kernel void inception_4b_1x1_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 160; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -1451,8 +1451,8 @@ constant half inception_4b_3x3_reduce_bias[] = {
     0.595503, -0.964095, 0.848090, 2.547104, 1.078282, 0.340987, 1.167141, -0.598332,
 };
 
-kernel void inception_4b_3x3_reduce_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4b_3x3_reduce_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -1473,9 +1473,9 @@ kernel void inception_4b_3x3_reduce_0(texture2d_array<float, access::read> in [[
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 112; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -1488,7 +1488,7 @@ kernel void inception_4b_3x3_reduce_0(texture2d_array<float, access::read> in [[
 
     for (int f = 0; f < 112; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -1524,8 +1524,8 @@ constant half inception_4b_3x3_bias[] = {
     0.660042, 0.642728, 0.784868, 0.087330, 0.696137, -0.024935, 0.548973, 0.405289,
 };
 
-kernel void inception_4b_3x3_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4b_3x3_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -1546,9 +1546,9 @@ kernel void inception_4b_3x3_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 224; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -1561,7 +1561,7 @@ kernel void inception_4b_3x3_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 224; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -1572,8 +1572,8 @@ constant half inception_4b_5x5_reduce_bias[] = {
     2.588965, 0.575375, 1.385070, 1.990859, 2.421601, 0.078018, 0.929501, 0.195170,
 };
 
-kernel void inception_4b_5x5_reduce_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4b_5x5_reduce_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -1594,9 +1594,9 @@ kernel void inception_4b_5x5_reduce_0(texture2d_array<float, access::read> in [[
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 24; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -1609,7 +1609,7 @@ kernel void inception_4b_5x5_reduce_0(texture2d_array<float, access::read> in [[
 
     for (int f = 0; f < 24; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -1625,8 +1625,8 @@ constant half inception_4b_5x5_bias[] = {
     0.406343, 0.231350, 0.185722, 0.722600, 0.478009, 0.614894, -0.136071, 1.314121,
 };
 
-kernel void inception_4b_5x5_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4b_5x5_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -1647,9 +1647,9 @@ kernel void inception_4b_5x5_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -1662,13 +1662,13 @@ kernel void inception_4b_5x5_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 64; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
 
-kernel void inception_4b_pool_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4b_pool_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          uint2 gid [[thread_position_in_grid]]) {
     const int kernelH = 3;
     const int kernelW = 3;
@@ -1690,8 +1690,8 @@ constant half inception_4b_pool_proj_bias[] = {
     -0.258124, -0.167480, 0.581330, 0.164395, 0.113839, 0.547525, 0.155552, 0.240651,
 };
 
-kernel void inception_4b_pool_proj_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4b_pool_proj_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -1712,9 +1712,9 @@ kernel void inception_4b_pool_proj_0(texture2d_array<float, access::read> in [[t
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -1727,7 +1727,7 @@ kernel void inception_4b_pool_proj_0(texture2d_array<float, access::read> in [[t
 
     for (int f = 0; f < 64; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -1751,8 +1751,8 @@ constant half inception_4c_1x1_bias[] = {
     0.225667, 1.456363, -0.073847, 0.947063, 0.759288, 0.450308, 0.410781, 1.691767,
 };
 
-kernel void inception_4c_1x1_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4c_1x1_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -1773,9 +1773,9 @@ kernel void inception_4c_1x1_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -1788,7 +1788,7 @@ kernel void inception_4c_1x1_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 128; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -1812,8 +1812,8 @@ constant half inception_4c_3x3_reduce_bias[] = {
     -0.692051, 0.941725, 0.212245, 0.875519, 0.155826, -4.597950, 1.555379, 2.237147,
 };
 
-kernel void inception_4c_3x3_reduce_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4c_3x3_reduce_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -1834,9 +1834,9 @@ kernel void inception_4c_3x3_reduce_0(texture2d_array<float, access::read> in [[
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -1849,7 +1849,7 @@ kernel void inception_4c_3x3_reduce_0(texture2d_array<float, access::read> in [[
 
     for (int f = 0; f < 128; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -1889,8 +1889,8 @@ constant half inception_4c_3x3_bias[] = {
     0.472280, 0.571197, 0.517547, 1.234962, 0.812231, 1.037495, -0.495154, 0.566316,
 };
 
-kernel void inception_4c_3x3_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4c_3x3_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -1911,9 +1911,9 @@ kernel void inception_4c_3x3_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 256; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -1926,7 +1926,7 @@ kernel void inception_4c_3x3_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 256; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -1937,8 +1937,8 @@ constant half inception_4c_5x5_reduce_bias[] = {
     0.095792, -0.043944, 2.602054, 2.169264, 1.249534, -0.667040, 1.295227, 2.654631,
 };
 
-kernel void inception_4c_5x5_reduce_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4c_5x5_reduce_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -1959,9 +1959,9 @@ kernel void inception_4c_5x5_reduce_0(texture2d_array<float, access::read> in [[
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 24; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -1974,7 +1974,7 @@ kernel void inception_4c_5x5_reduce_0(texture2d_array<float, access::read> in [[
 
     for (int f = 0; f < 24; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -1990,8 +1990,8 @@ constant half inception_4c_5x5_bias[] = {
     0.322887, 2.729447, 1.118458, 1.049294, 0.178339, 0.318640, 1.001378, -0.441179,
 };
 
-kernel void inception_4c_5x5_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4c_5x5_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -2012,9 +2012,9 @@ kernel void inception_4c_5x5_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -2027,13 +2027,13 @@ kernel void inception_4c_5x5_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 64; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
 
-kernel void inception_4c_pool_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4c_pool_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          uint2 gid [[thread_position_in_grid]]) {
     const int kernelH = 3;
     const int kernelW = 3;
@@ -2055,8 +2055,8 @@ constant half inception_4c_pool_proj_bias[] = {
     -0.222136, 0.913460, 0.513615, 0.648182, 0.004991, 0.528856, 0.613127, -0.187071,
 };
 
-kernel void inception_4c_pool_proj_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4c_pool_proj_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -2077,9 +2077,9 @@ kernel void inception_4c_pool_proj_0(texture2d_array<float, access::read> in [[t
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -2092,7 +2092,7 @@ kernel void inception_4c_pool_proj_0(texture2d_array<float, access::read> in [[t
 
     for (int f = 0; f < 64; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -2114,8 +2114,8 @@ constant half inception_4d_1x1_bias[] = {
     0.879599, 0.537717, 1.461209, 1.120888, 0.268896, 1.473885, 1.659207, 1.482274,
 };
 
-kernel void inception_4d_1x1_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4d_1x1_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -2136,9 +2136,9 @@ kernel void inception_4d_1x1_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 112; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -2151,7 +2151,7 @@ kernel void inception_4d_1x1_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 112; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -2177,8 +2177,8 @@ constant half inception_4d_3x3_reduce_bias[] = {
     -0.043084, 0.296091, 1.993382, -0.257092, -0.520694, 1.414366, -0.493838, -2.277025,
 };
 
-kernel void inception_4d_3x3_reduce_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4d_3x3_reduce_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -2199,9 +2199,9 @@ kernel void inception_4d_3x3_reduce_0(texture2d_array<float, access::read> in [[
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 144; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -2214,7 +2214,7 @@ kernel void inception_4d_3x3_reduce_0(texture2d_array<float, access::read> in [[
 
     for (int f = 0; f < 144; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -2258,8 +2258,8 @@ constant half inception_4d_3x3_bias[] = {
     0.952493, 0.080608, 0.628280, 1.043838, 0.732940, 0.263712, 0.134229, 0.539898,
 };
 
-kernel void inception_4d_3x3_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4d_3x3_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -2280,9 +2280,9 @@ kernel void inception_4d_3x3_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 288; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -2295,7 +2295,7 @@ kernel void inception_4d_3x3_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 288; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -2307,8 +2307,8 @@ constant half inception_4d_5x5_reduce_bias[] = {
     3.991693, 2.119417, 1.747749, -0.054752, 1.820362, 1.441555, 0.179892, -1.339841,
 };
 
-kernel void inception_4d_5x5_reduce_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4d_5x5_reduce_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -2329,9 +2329,9 @@ kernel void inception_4d_5x5_reduce_0(texture2d_array<float, access::read> in [[
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 32; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -2344,7 +2344,7 @@ kernel void inception_4d_5x5_reduce_0(texture2d_array<float, access::read> in [[
 
     for (int f = 0; f < 32; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -2360,8 +2360,8 @@ constant half inception_4d_5x5_bias[] = {
     1.509258, 0.281304, 1.139774, 0.507085, -1.249361, 1.428569, 0.703325, 0.393887,
 };
 
-kernel void inception_4d_5x5_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4d_5x5_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -2382,9 +2382,9 @@ kernel void inception_4d_5x5_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -2397,13 +2397,13 @@ kernel void inception_4d_5x5_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 64; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
 
-kernel void inception_4d_pool_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4d_pool_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          uint2 gid [[thread_position_in_grid]]) {
     const int kernelH = 3;
     const int kernelW = 3;
@@ -2425,8 +2425,8 @@ constant half inception_4d_pool_proj_bias[] = {
     0.145048, -0.444891, 0.372020, 1.354259, -0.468855, -0.412464, 0.212441, 0.494402,
 };
 
-kernel void inception_4d_pool_proj_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4d_pool_proj_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -2447,9 +2447,9 @@ kernel void inception_4d_pool_proj_0(texture2d_array<float, access::read> in [[t
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -2462,7 +2462,7 @@ kernel void inception_4d_pool_proj_0(texture2d_array<float, access::read> in [[t
 
     for (int f = 0; f < 64; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -2502,8 +2502,8 @@ constant half inception_4e_1x1_bias[] = {
     0.242901, 1.051472, 0.742515, 0.511038, 0.462907, 0.578846, 0.341511, 0.302363,
 };
 
-kernel void inception_4e_1x1_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4e_1x1_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -2524,9 +2524,9 @@ kernel void inception_4e_1x1_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 256; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -2539,7 +2539,7 @@ kernel void inception_4e_1x1_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 256; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -2567,8 +2567,8 @@ constant half inception_4e_3x3_reduce_bias[] = {
     -0.429089, 0.615079, 1.774812, -3.317134, 1.242851, 1.692300, 0.061790, -0.753016,
 };
 
-kernel void inception_4e_3x3_reduce_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4e_3x3_reduce_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -2589,9 +2589,9 @@ kernel void inception_4e_3x3_reduce_0(texture2d_array<float, access::read> in [[
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 160; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -2604,7 +2604,7 @@ kernel void inception_4e_3x3_reduce_0(texture2d_array<float, access::read> in [[
 
     for (int f = 0; f < 160; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -2652,8 +2652,8 @@ constant half inception_4e_3x3_bias[] = {
     0.245321, 0.385266, 0.726972, 0.915123, 0.754393, 1.134701, 1.101188, 1.078628,
 };
 
-kernel void inception_4e_3x3_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4e_3x3_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -2674,9 +2674,9 @@ kernel void inception_4e_3x3_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 320; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -2689,7 +2689,7 @@ kernel void inception_4e_3x3_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 320; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -2701,8 +2701,8 @@ constant half inception_4e_5x5_reduce_bias[] = {
     1.232243, 2.041968, 1.473655, 0.974401, -1.638534, 3.869189, 1.108886, 1.182687,
 };
 
-kernel void inception_4e_5x5_reduce_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4e_5x5_reduce_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -2723,9 +2723,9 @@ kernel void inception_4e_5x5_reduce_0(texture2d_array<float, access::read> in [[
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 32; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -2738,7 +2738,7 @@ kernel void inception_4e_5x5_reduce_0(texture2d_array<float, access::read> in [[
 
     for (int f = 0; f < 32; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -2762,8 +2762,8 @@ constant half inception_4e_5x5_bias[] = {
     0.205390, 0.280019, 0.350702, 0.761033, 0.453415, 0.090908, 0.249624, 0.027591,
 };
 
-kernel void inception_4e_5x5_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4e_5x5_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -2784,9 +2784,9 @@ kernel void inception_4e_5x5_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -2799,13 +2799,13 @@ kernel void inception_4e_5x5_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 128; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
 
-kernel void inception_4e_pool_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4e_pool_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          uint2 gid [[thread_position_in_grid]]) {
     const int kernelH = 3;
     const int kernelW = 3;
@@ -2835,8 +2835,8 @@ constant half inception_4e_pool_proj_bias[] = {
     0.252396, -0.283171, 0.329337, 0.144652, -0.521677, 0.072517, 0.148651, 0.280281,
 };
 
-kernel void inception_4e_pool_proj_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_4e_pool_proj_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -2857,9 +2857,9 @@ kernel void inception_4e_pool_proj_0(texture2d_array<float, access::read> in [[t
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 14 && x+dx >= 0 && x+dx < 14) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -2872,13 +2872,13 @@ kernel void inception_4e_pool_proj_0(texture2d_array<float, access::read> in [[t
 
     for (int f = 0; f < 128; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
 
-kernel void pool4_3x3_s2_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void pool4_3x3_s2_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          uint2 gid [[thread_position_in_grid]]) {
     const int kernelH = 3;
     const int kernelW = 3;
@@ -2924,8 +2924,8 @@ constant half inception_5a_1x1_bias[] = {
     -0.068995, 0.253337, -0.100124, -0.153285, 0.249423, 0.246189, -0.425677, 0.600320,
 };
 
-kernel void inception_5a_1x1_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_5a_1x1_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -2946,9 +2946,9 @@ kernel void inception_5a_1x1_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 256; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -2961,7 +2961,7 @@ kernel void inception_5a_1x1_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 256; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -2989,8 +2989,8 @@ constant half inception_5a_3x3_reduce_bias[] = {
     -0.259441, -0.651464, 0.448182, -1.453226, -0.254772, 0.411210, -0.795461, -0.017680,
 };
 
-kernel void inception_5a_3x3_reduce_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_5a_3x3_reduce_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -3011,9 +3011,9 @@ kernel void inception_5a_3x3_reduce_0(texture2d_array<float, access::read> in [[
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 160; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -3026,7 +3026,7 @@ kernel void inception_5a_3x3_reduce_0(texture2d_array<float, access::read> in [[
 
     for (int f = 0; f < 160; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -3074,8 +3074,8 @@ constant half inception_5a_3x3_bias[] = {
     0.212416, 0.680929, 0.590900, 1.205018, 1.167317, 0.871681, 0.344643, 0.734481,
 };
 
-kernel void inception_5a_3x3_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_5a_3x3_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -3096,9 +3096,9 @@ kernel void inception_5a_3x3_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 320; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -3111,7 +3111,7 @@ kernel void inception_5a_3x3_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 320; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -3123,8 +3123,8 @@ constant half inception_5a_5x5_reduce_bias[] = {
     0.417288, 2.609662, 0.054835, 5.456886, 1.858658, 3.118584, -1.149704, 0.813719,
 };
 
-kernel void inception_5a_5x5_reduce_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_5a_5x5_reduce_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -3145,9 +3145,9 @@ kernel void inception_5a_5x5_reduce_0(texture2d_array<float, access::read> in [[
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 32; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -3160,7 +3160,7 @@ kernel void inception_5a_5x5_reduce_0(texture2d_array<float, access::read> in [[
 
     for (int f = 0; f < 32; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -3184,8 +3184,8 @@ constant half inception_5a_5x5_bias[] = {
     -1.699604, -0.391107, -0.094343, -0.022599, 1.025634, 0.613456, 0.673105, -0.837159,
 };
 
-kernel void inception_5a_5x5_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_5a_5x5_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -3206,9 +3206,9 @@ kernel void inception_5a_5x5_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -3221,13 +3221,13 @@ kernel void inception_5a_5x5_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 128; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
 
-kernel void inception_5a_pool_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_5a_pool_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          uint2 gid [[thread_position_in_grid]]) {
     const int kernelH = 3;
     const int kernelW = 3;
@@ -3257,8 +3257,8 @@ constant half inception_5a_pool_proj_bias[] = {
     1.128336, 0.306408, -0.416330, 0.658764, 1.010634, 0.380560, -0.409817, 1.306669,
 };
 
-kernel void inception_5a_pool_proj_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_5a_pool_proj_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -3279,9 +3279,9 @@ kernel void inception_5a_pool_proj_0(texture2d_array<float, access::read> in [[t
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -3294,7 +3294,7 @@ kernel void inception_5a_pool_proj_0(texture2d_array<float, access::read> in [[t
 
     for (int f = 0; f < 128; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -3350,8 +3350,8 @@ constant half inception_5b_1x1_bias[] = {
     0.287372, 0.364241, 0.068404, 0.566531, 1.407816, 0.396629, 0.607847, 0.950931,
 };
 
-kernel void inception_5b_1x1_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_5b_1x1_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -3372,9 +3372,9 @@ kernel void inception_5b_1x1_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 384; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -3387,7 +3387,7 @@ kernel void inception_5b_1x1_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 384; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -3419,8 +3419,8 @@ constant half inception_5b_3x3_reduce_bias[] = {
     -0.710326, -0.046904, 0.321931, 1.107810, -3.057260, 0.778323, 0.269447, 0.330031,
 };
 
-kernel void inception_5b_3x3_reduce_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_5b_3x3_reduce_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -3441,9 +3441,9 @@ kernel void inception_5b_3x3_reduce_0(texture2d_array<float, access::read> in [[
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 192; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -3456,7 +3456,7 @@ kernel void inception_5b_3x3_reduce_0(texture2d_array<float, access::read> in [[
 
     for (int f = 0; f < 192; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -3512,8 +3512,8 @@ constant half inception_5b_3x3_bias[] = {
     0.204439, 0.589452, -0.134533, 0.649156, 0.338906, 0.799088, 0.240468, 0.492276,
 };
 
-kernel void inception_5b_3x3_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_5b_3x3_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -3534,9 +3534,9 @@ kernel void inception_5b_3x3_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 384; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -3549,7 +3549,7 @@ kernel void inception_5b_3x3_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 384; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -3563,8 +3563,8 @@ constant half inception_5b_5x5_reduce_bias[] = {
     0.242128, -0.017957, 1.015241, 0.143491, 0.657904, -0.476074, -1.398365, -0.108081,
 };
 
-kernel void inception_5b_5x5_reduce_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_5b_5x5_reduce_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -3585,9 +3585,9 @@ kernel void inception_5b_5x5_reduce_0(texture2d_array<float, access::read> in [[
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 48; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -3600,7 +3600,7 @@ kernel void inception_5b_5x5_reduce_0(texture2d_array<float, access::read> in [[
 
     for (int f = 0; f < 48; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
@@ -3624,8 +3624,8 @@ constant half inception_5b_5x5_bias[] = {
     -0.494698, -0.063474, -0.097454, 0.441114, 1.035740, 0.131035, -0.530918, 0.353521,
 };
 
-kernel void inception_5b_5x5_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_5b_5x5_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -3646,9 +3646,9 @@ kernel void inception_5b_5x5_0(texture2d_array<float, access::read> in [[texture
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -3661,13 +3661,13 @@ kernel void inception_5b_5x5_0(texture2d_array<float, access::read> in [[texture
 
     for (int f = 0; f < 128; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
 
-kernel void inception_5b_pool_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_5b_pool_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          uint2 gid [[thread_position_in_grid]]) {
     const int kernelH = 3;
     const int kernelW = 3;
@@ -3697,8 +3697,8 @@ constant half inception_5b_pool_proj_bias[] = {
     0.268958, 0.256753, 0.266008, 0.421061, 0.654833, 0.260519, -0.072208, -0.210664,
 };
 
-kernel void inception_5b_pool_proj_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void inception_5b_pool_proj_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          device half* weights [[buffer(0)]],
                          uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= out.get_width() || gid.y >= out.get_height()) { return; }
@@ -3719,9 +3719,9 @@ kernel void inception_5b_pool_proj_0(texture2d_array<float, access::read> in [[t
         for (int dy = -kernelH/2; dy <= kernelH/2; dy++) {
             for (int dx = -kernelW/2; dx <= kernelW/2; dx++) {
                 if (y+dy >= 0 && y+dy < 7 && x+dx >= 0 && x+dx < 7) {
-                    float v = in.read(uint2(x + dx, y + dy), fc)[0];
+                    half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
-                        float w = weights[i];
+                        half w = weights[i];
                         sum[f] += w * v;
                         i++;
                     }
@@ -3734,13 +3734,13 @@ kernel void inception_5b_pool_proj_0(texture2d_array<float, access::read> in [[t
 
     for (int f = 0; f < 128; f++) {
         // Pair with a ReLU layer that goes next.
-        float v = max(sum[f], 0.0f);
+        half v = max(sum[f], 0.0f);
         out.write(v, gid, f);
     }
 }
 
-kernel void pool5_7x7_s1_0(texture2d_array<float, access::read> in [[texture(0)]],
-                         texture2d_array<float, access::write> out [[texture(1)]],
+kernel void pool5_7x7_s1_0(texture2d_array<half, access::read> in [[texture(0)]],
+                         texture2d_array<half, access::write> out [[texture(1)]],
                          uint2 gid [[thread_position_in_grid]]) {
     const int kernelH = 7;
     const int kernelW = 7;
