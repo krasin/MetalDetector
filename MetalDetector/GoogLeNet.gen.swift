@@ -247,8 +247,8 @@ public class GoogLeNetConfig : NetConfig {
             NetLayer(name: "inception_5b_pool_proj", weights: "inception_5b_pool_proj", shards: 1, top: "inception_5b_pool_proj", bottoms: ["inception_5b_pool"]),
             NetLayer(name: "inception_5b_output", weights: "", shards: 1, top: "inception_5b_output", bottoms: ["inception_5b_1x1", "inception_5b_3x3", "inception_5b_5x5", "inception_5b_pool_proj"]),
             NetLayer(name: "pool5_7x7_s1", weights: "", shards: 1, top: "pool5_7x7_s1", bottoms: ["inception_5b_output"]),
-            //NetLayer(name: "loss3_classifier", weights: "loss3_classifier", shards: 1, top: "loss3_classifier", bottoms: ["pool5_7x7_s1"]),
-            //NetLayer(name: "prob", weights: "", shards: 1, top: "prob", bottoms: ["loss3_classifier"]),
+        //            NetLayer(name: "loss3_classifier", weights: "loss3_classifier", shards: 1, top: "loss3_classifier", bottoms: ["pool5_7x7_s1"]),
+        //            NetLayer(name: "prob", weights: "", shards: 1, top: "prob", bottoms: ["loss3_classifier"]),
         ]
     }
 }

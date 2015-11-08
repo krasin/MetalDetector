@@ -115,8 +115,10 @@ kernel void conv1_7x7_s2_0(texture2d_array<half, access::read> in [[texture(0)]]
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[64];
+    half hsum[64];
     for (int f = 0; f < 64; f++) {
         sum[f] = conv1_7x7_s2_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 3; fc++) {
@@ -126,14 +128,24 @@ kernel void conv1_7x7_s2_0(texture2d_array<half, access::read> in [[texture(0)]]
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 64) % 8 == 0) {
+                        for (int f = 0; f < 64; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 64;
             }
         }
+    }
+    for (int f = 0; f < 64; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 64; f++) {
@@ -189,8 +201,10 @@ kernel void conv2_3x3_reduce_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[64];
+    half hsum[64];
     for (int f = 0; f < 64; f++) {
         sum[f] = conv2_3x3_reduce_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 64; fc++) {
@@ -200,14 +214,24 @@ kernel void conv2_3x3_reduce_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 64) % 8 == 0) {
+                        for (int f = 0; f < 64; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 64;
             }
         }
+    }
+    for (int f = 0; f < 64; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 64; f++) {
@@ -258,8 +282,10 @@ kernel void conv2_3x3_0(texture2d_array<half, access::read> in [[texture(0)]],
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[192];
+    half hsum[192];
     for (int f = 0; f < 192; f++) {
         sum[f] = conv2_3x3_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 64; fc++) {
@@ -269,14 +295,24 @@ kernel void conv2_3x3_0(texture2d_array<half, access::read> in [[texture(0)]],
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 192; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 192) % 8 == 0) {
+                        for (int f = 0; f < 192; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 192;
             }
         }
+    }
+    for (int f = 0; f < 192; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 192; f++) {
@@ -332,8 +368,10 @@ kernel void inception_3a_1x1_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[64];
+    half hsum[64];
     for (int f = 0; f < 64; f++) {
         sum[f] = inception_3a_1x1_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 192; fc++) {
@@ -343,14 +381,24 @@ kernel void inception_3a_1x1_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 64) % 8 == 0) {
+                        for (int f = 0; f < 64; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 64;
             }
         }
+    }
+    for (int f = 0; f < 64; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 64; f++) {
@@ -389,8 +437,10 @@ kernel void inception_3a_3x3_reduce_0(texture2d_array<half, access::read> in [[t
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[96];
+    half hsum[96];
     for (int f = 0; f < 96; f++) {
         sum[f] = inception_3a_3x3_reduce_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 192; fc++) {
@@ -400,14 +450,24 @@ kernel void inception_3a_3x3_reduce_0(texture2d_array<half, access::read> in [[t
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 96; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 96) % 8 == 0) {
+                        for (int f = 0; f < 96; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 96;
             }
         }
+    }
+    for (int f = 0; f < 96; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 96; f++) {
@@ -450,8 +510,10 @@ kernel void inception_3a_3x3_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[128];
+    half hsum[128];
     for (int f = 0; f < 128; f++) {
         sum[f] = inception_3a_3x3_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 96; fc++) {
@@ -461,14 +523,24 @@ kernel void inception_3a_3x3_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 128) % 8 == 0) {
+                        for (int f = 0; f < 128; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 128;
             }
         }
+    }
+    for (int f = 0; f < 128; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 128; f++) {
@@ -497,8 +569,10 @@ kernel void inception_3a_5x5_reduce_0(texture2d_array<half, access::read> in [[t
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[16];
+    half hsum[16];
     for (int f = 0; f < 16; f++) {
         sum[f] = inception_3a_5x5_reduce_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 192; fc++) {
@@ -508,14 +582,24 @@ kernel void inception_3a_5x5_reduce_0(texture2d_array<half, access::read> in [[t
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 16; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 16) % 8 == 0) {
+                        for (int f = 0; f < 16; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 16;
             }
         }
+    }
+    for (int f = 0; f < 16; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 16; f++) {
@@ -546,8 +630,10 @@ kernel void inception_3a_5x5_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[32];
+    half hsum[32];
     for (int f = 0; f < 32; f++) {
         sum[f] = inception_3a_5x5_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 16; fc++) {
@@ -557,14 +643,24 @@ kernel void inception_3a_5x5_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 32; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 32) % 8 == 0) {
+                        for (int f = 0; f < 32; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 32;
             }
         }
+    }
+    for (int f = 0; f < 32; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 32; f++) {
@@ -607,8 +703,10 @@ kernel void inception_3a_pool_proj_0(texture2d_array<half, access::read> in [[te
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[32];
+    half hsum[32];
     for (int f = 0; f < 32; f++) {
         sum[f] = inception_3a_pool_proj_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 192; fc++) {
@@ -618,14 +716,24 @@ kernel void inception_3a_pool_proj_0(texture2d_array<half, access::read> in [[te
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 32; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 32) % 8 == 0) {
+                        for (int f = 0; f < 32; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 32;
             }
         }
+    }
+    for (int f = 0; f < 32; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 32; f++) {
@@ -668,8 +776,10 @@ kernel void inception_3b_1x1_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[128];
+    half hsum[128];
     for (int f = 0; f < 128; f++) {
         sum[f] = inception_3b_1x1_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 256; fc++) {
@@ -679,14 +789,24 @@ kernel void inception_3b_1x1_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 128) % 8 == 0) {
+                        for (int f = 0; f < 128; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 128;
             }
         }
+    }
+    for (int f = 0; f < 128; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 128; f++) {
@@ -729,8 +849,10 @@ kernel void inception_3b_3x3_reduce_0(texture2d_array<half, access::read> in [[t
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[128];
+    half hsum[128];
     for (int f = 0; f < 128; f++) {
         sum[f] = inception_3b_3x3_reduce_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 256; fc++) {
@@ -740,14 +862,24 @@ kernel void inception_3b_3x3_reduce_0(texture2d_array<half, access::read> in [[t
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 128) % 8 == 0) {
+                        for (int f = 0; f < 128; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 128;
             }
         }
+    }
+    for (int f = 0; f < 128; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 128; f++) {
@@ -798,8 +930,10 @@ kernel void inception_3b_3x3_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[192];
+    half hsum[192];
     for (int f = 0; f < 192; f++) {
         sum[f] = inception_3b_3x3_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 128; fc++) {
@@ -809,14 +943,24 @@ kernel void inception_3b_3x3_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 192; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 192) % 8 == 0) {
+                        for (int f = 0; f < 192; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 192;
             }
         }
+    }
+    for (int f = 0; f < 192; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 192; f++) {
@@ -847,8 +991,10 @@ kernel void inception_3b_5x5_reduce_0(texture2d_array<half, access::read> in [[t
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[32];
+    half hsum[32];
     for (int f = 0; f < 32; f++) {
         sum[f] = inception_3b_5x5_reduce_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 256; fc++) {
@@ -858,14 +1004,24 @@ kernel void inception_3b_5x5_reduce_0(texture2d_array<half, access::read> in [[t
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 32; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 32) % 8 == 0) {
+                        for (int f = 0; f < 32; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 32;
             }
         }
+    }
+    for (int f = 0; f < 32; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 32; f++) {
@@ -904,8 +1060,10 @@ kernel void inception_3b_5x5_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[96];
+    half hsum[96];
     for (int f = 0; f < 96; f++) {
         sum[f] = inception_3b_5x5_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 32; fc++) {
@@ -915,14 +1073,24 @@ kernel void inception_3b_5x5_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 96; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 96) % 8 == 0) {
+                        for (int f = 0; f < 96; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 96;
             }
         }
+    }
+    for (int f = 0; f < 96; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 96; f++) {
@@ -969,8 +1137,10 @@ kernel void inception_3b_pool_proj_0(texture2d_array<half, access::read> in [[te
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[64];
+    half hsum[64];
     for (int f = 0; f < 64; f++) {
         sum[f] = inception_3b_pool_proj_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 256; fc++) {
@@ -980,14 +1150,24 @@ kernel void inception_3b_pool_proj_0(texture2d_array<half, access::read> in [[te
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 64) % 8 == 0) {
+                        for (int f = 0; f < 64; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 64;
             }
         }
+    }
+    for (int f = 0; f < 64; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 64; f++) {
@@ -1050,8 +1230,10 @@ kernel void inception_4a_1x1_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[192];
+    half hsum[192];
     for (int f = 0; f < 192; f++) {
         sum[f] = inception_4a_1x1_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 480; fc++) {
@@ -1061,14 +1243,24 @@ kernel void inception_4a_1x1_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 192; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 192) % 8 == 0) {
+                        for (int f = 0; f < 192; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 192;
             }
         }
+    }
+    for (int f = 0; f < 192; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 192; f++) {
@@ -1107,8 +1299,10 @@ kernel void inception_4a_3x3_reduce_0(texture2d_array<half, access::read> in [[t
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[96];
+    half hsum[96];
     for (int f = 0; f < 96; f++) {
         sum[f] = inception_4a_3x3_reduce_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 480; fc++) {
@@ -1118,14 +1312,24 @@ kernel void inception_4a_3x3_reduce_0(texture2d_array<half, access::read> in [[t
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 96; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 96) % 8 == 0) {
+                        for (int f = 0; f < 96; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 96;
             }
         }
+    }
+    for (int f = 0; f < 96; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 96; f++) {
@@ -1178,8 +1382,10 @@ kernel void inception_4a_3x3_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[208];
+    half hsum[208];
     for (int f = 0; f < 208; f++) {
         sum[f] = inception_4a_3x3_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 96; fc++) {
@@ -1189,14 +1395,24 @@ kernel void inception_4a_3x3_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 208; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 208) % 8 == 0) {
+                        for (int f = 0; f < 208; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 208;
             }
         }
+    }
+    for (int f = 0; f < 208; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 208; f++) {
@@ -1225,8 +1441,10 @@ kernel void inception_4a_5x5_reduce_0(texture2d_array<half, access::read> in [[t
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[16];
+    half hsum[16];
     for (int f = 0; f < 16; f++) {
         sum[f] = inception_4a_5x5_reduce_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 480; fc++) {
@@ -1236,14 +1454,24 @@ kernel void inception_4a_5x5_reduce_0(texture2d_array<half, access::read> in [[t
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 16; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 16) % 8 == 0) {
+                        for (int f = 0; f < 16; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 16;
             }
         }
+    }
+    for (int f = 0; f < 16; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 16; f++) {
@@ -1276,8 +1504,10 @@ kernel void inception_4a_5x5_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[48];
+    half hsum[48];
     for (int f = 0; f < 48; f++) {
         sum[f] = inception_4a_5x5_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 16; fc++) {
@@ -1287,14 +1517,24 @@ kernel void inception_4a_5x5_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 48; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 48) % 8 == 0) {
+                        for (int f = 0; f < 48; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 48;
             }
         }
+    }
+    for (int f = 0; f < 48; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 48; f++) {
@@ -1341,8 +1581,10 @@ kernel void inception_4a_pool_proj_0(texture2d_array<half, access::read> in [[te
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[64];
+    half hsum[64];
     for (int f = 0; f < 64; f++) {
         sum[f] = inception_4a_pool_proj_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 480; fc++) {
@@ -1352,14 +1594,24 @@ kernel void inception_4a_pool_proj_0(texture2d_array<half, access::read> in [[te
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 64) % 8 == 0) {
+                        for (int f = 0; f < 64; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 64;
             }
         }
+    }
+    for (int f = 0; f < 64; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 64; f++) {
@@ -1406,8 +1658,10 @@ kernel void inception_4b_1x1_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[160];
+    half hsum[160];
     for (int f = 0; f < 160; f++) {
         sum[f] = inception_4b_1x1_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 512; fc++) {
@@ -1417,14 +1671,24 @@ kernel void inception_4b_1x1_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 160; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 160) % 8 == 0) {
+                        for (int f = 0; f < 160; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 160;
             }
         }
+    }
+    for (int f = 0; f < 160; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 160; f++) {
@@ -1465,8 +1729,10 @@ kernel void inception_4b_3x3_reduce_0(texture2d_array<half, access::read> in [[t
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[112];
+    half hsum[112];
     for (int f = 0; f < 112; f++) {
         sum[f] = inception_4b_3x3_reduce_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 512; fc++) {
@@ -1476,14 +1742,24 @@ kernel void inception_4b_3x3_reduce_0(texture2d_array<half, access::read> in [[t
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 112; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 112) % 8 == 0) {
+                        for (int f = 0; f < 112; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 112;
             }
         }
+    }
+    for (int f = 0; f < 112; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 112; f++) {
@@ -1538,8 +1814,10 @@ kernel void inception_4b_3x3_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[224];
+    half hsum[224];
     for (int f = 0; f < 224; f++) {
         sum[f] = inception_4b_3x3_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 112; fc++) {
@@ -1549,14 +1827,24 @@ kernel void inception_4b_3x3_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 224; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 224) % 8 == 0) {
+                        for (int f = 0; f < 224; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 224;
             }
         }
+    }
+    for (int f = 0; f < 224; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 224; f++) {
@@ -1586,8 +1874,10 @@ kernel void inception_4b_5x5_reduce_0(texture2d_array<half, access::read> in [[t
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[24];
+    half hsum[24];
     for (int f = 0; f < 24; f++) {
         sum[f] = inception_4b_5x5_reduce_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 512; fc++) {
@@ -1597,14 +1887,24 @@ kernel void inception_4b_5x5_reduce_0(texture2d_array<half, access::read> in [[t
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 24; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 24) % 8 == 0) {
+                        for (int f = 0; f < 24; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 24;
             }
         }
+    }
+    for (int f = 0; f < 24; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 24; f++) {
@@ -1639,8 +1939,10 @@ kernel void inception_4b_5x5_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[64];
+    half hsum[64];
     for (int f = 0; f < 64; f++) {
         sum[f] = inception_4b_5x5_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 24; fc++) {
@@ -1650,14 +1952,24 @@ kernel void inception_4b_5x5_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 64) % 8 == 0) {
+                        for (int f = 0; f < 64; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 64;
             }
         }
+    }
+    for (int f = 0; f < 64; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 64; f++) {
@@ -1704,8 +2016,10 @@ kernel void inception_4b_pool_proj_0(texture2d_array<half, access::read> in [[te
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[64];
+    half hsum[64];
     for (int f = 0; f < 64; f++) {
         sum[f] = inception_4b_pool_proj_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 512; fc++) {
@@ -1715,14 +2029,24 @@ kernel void inception_4b_pool_proj_0(texture2d_array<half, access::read> in [[te
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 64) % 8 == 0) {
+                        for (int f = 0; f < 64; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 64;
             }
         }
+    }
+    for (int f = 0; f < 64; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 64; f++) {
@@ -1765,8 +2089,10 @@ kernel void inception_4c_1x1_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[128];
+    half hsum[128];
     for (int f = 0; f < 128; f++) {
         sum[f] = inception_4c_1x1_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 512; fc++) {
@@ -1776,14 +2102,24 @@ kernel void inception_4c_1x1_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 128) % 8 == 0) {
+                        for (int f = 0; f < 128; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 128;
             }
         }
+    }
+    for (int f = 0; f < 128; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 128; f++) {
@@ -1826,8 +2162,10 @@ kernel void inception_4c_3x3_reduce_0(texture2d_array<half, access::read> in [[t
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[128];
+    half hsum[128];
     for (int f = 0; f < 128; f++) {
         sum[f] = inception_4c_3x3_reduce_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 512; fc++) {
@@ -1837,14 +2175,24 @@ kernel void inception_4c_3x3_reduce_0(texture2d_array<half, access::read> in [[t
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 128) % 8 == 0) {
+                        for (int f = 0; f < 128; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 128;
             }
         }
+    }
+    for (int f = 0; f < 128; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 128; f++) {
@@ -1903,8 +2251,10 @@ kernel void inception_4c_3x3_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[256];
+    half hsum[256];
     for (int f = 0; f < 256; f++) {
         sum[f] = inception_4c_3x3_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 128; fc++) {
@@ -1914,14 +2264,24 @@ kernel void inception_4c_3x3_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 256; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 256) % 8 == 0) {
+                        for (int f = 0; f < 256; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 256;
             }
         }
+    }
+    for (int f = 0; f < 256; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 256; f++) {
@@ -1951,8 +2311,10 @@ kernel void inception_4c_5x5_reduce_0(texture2d_array<half, access::read> in [[t
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[24];
+    half hsum[24];
     for (int f = 0; f < 24; f++) {
         sum[f] = inception_4c_5x5_reduce_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 512; fc++) {
@@ -1962,14 +2324,24 @@ kernel void inception_4c_5x5_reduce_0(texture2d_array<half, access::read> in [[t
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 24; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 24) % 8 == 0) {
+                        for (int f = 0; f < 24; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 24;
             }
         }
+    }
+    for (int f = 0; f < 24; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 24; f++) {
@@ -2004,8 +2376,10 @@ kernel void inception_4c_5x5_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[64];
+    half hsum[64];
     for (int f = 0; f < 64; f++) {
         sum[f] = inception_4c_5x5_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 24; fc++) {
@@ -2015,14 +2389,24 @@ kernel void inception_4c_5x5_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 64) % 8 == 0) {
+                        for (int f = 0; f < 64; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 64;
             }
         }
+    }
+    for (int f = 0; f < 64; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 64; f++) {
@@ -2069,8 +2453,10 @@ kernel void inception_4c_pool_proj_0(texture2d_array<half, access::read> in [[te
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[64];
+    half hsum[64];
     for (int f = 0; f < 64; f++) {
         sum[f] = inception_4c_pool_proj_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 512; fc++) {
@@ -2080,14 +2466,24 @@ kernel void inception_4c_pool_proj_0(texture2d_array<half, access::read> in [[te
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 64) % 8 == 0) {
+                        for (int f = 0; f < 64; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 64;
             }
         }
+    }
+    for (int f = 0; f < 64; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 64; f++) {
@@ -2128,8 +2524,10 @@ kernel void inception_4d_1x1_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[112];
+    half hsum[112];
     for (int f = 0; f < 112; f++) {
         sum[f] = inception_4d_1x1_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 512; fc++) {
@@ -2139,14 +2537,24 @@ kernel void inception_4d_1x1_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 112; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 112) % 8 == 0) {
+                        for (int f = 0; f < 112; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 112;
             }
         }
+    }
+    for (int f = 0; f < 112; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 112; f++) {
@@ -2191,8 +2599,10 @@ kernel void inception_4d_3x3_reduce_0(texture2d_array<half, access::read> in [[t
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[144];
+    half hsum[144];
     for (int f = 0; f < 144; f++) {
         sum[f] = inception_4d_3x3_reduce_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 512; fc++) {
@@ -2202,14 +2612,24 @@ kernel void inception_4d_3x3_reduce_0(texture2d_array<half, access::read> in [[t
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 144; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 144) % 8 == 0) {
+                        for (int f = 0; f < 144; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 144;
             }
         }
+    }
+    for (int f = 0; f < 144; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 144; f++) {
@@ -2272,8 +2692,10 @@ kernel void inception_4d_3x3_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[288];
+    half hsum[288];
     for (int f = 0; f < 288; f++) {
         sum[f] = inception_4d_3x3_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 144; fc++) {
@@ -2283,14 +2705,24 @@ kernel void inception_4d_3x3_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 288; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 288) % 8 == 0) {
+                        for (int f = 0; f < 288; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 288;
             }
         }
+    }
+    for (int f = 0; f < 288; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 288; f++) {
@@ -2321,8 +2753,10 @@ kernel void inception_4d_5x5_reduce_0(texture2d_array<half, access::read> in [[t
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[32];
+    half hsum[32];
     for (int f = 0; f < 32; f++) {
         sum[f] = inception_4d_5x5_reduce_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 512; fc++) {
@@ -2332,14 +2766,24 @@ kernel void inception_4d_5x5_reduce_0(texture2d_array<half, access::read> in [[t
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 32; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 32) % 8 == 0) {
+                        for (int f = 0; f < 32; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 32;
             }
         }
+    }
+    for (int f = 0; f < 32; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 32; f++) {
@@ -2374,8 +2818,10 @@ kernel void inception_4d_5x5_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[64];
+    half hsum[64];
     for (int f = 0; f < 64; f++) {
         sum[f] = inception_4d_5x5_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 32; fc++) {
@@ -2385,14 +2831,24 @@ kernel void inception_4d_5x5_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 64) % 8 == 0) {
+                        for (int f = 0; f < 64; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 64;
             }
         }
+    }
+    for (int f = 0; f < 64; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 64; f++) {
@@ -2439,8 +2895,10 @@ kernel void inception_4d_pool_proj_0(texture2d_array<half, access::read> in [[te
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[64];
+    half hsum[64];
     for (int f = 0; f < 64; f++) {
         sum[f] = inception_4d_pool_proj_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 512; fc++) {
@@ -2450,14 +2908,24 @@ kernel void inception_4d_pool_proj_0(texture2d_array<half, access::read> in [[te
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 64; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 64) % 8 == 0) {
+                        for (int f = 0; f < 64; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 64;
             }
         }
+    }
+    for (int f = 0; f < 64; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 64; f++) {
@@ -2516,8 +2984,10 @@ kernel void inception_4e_1x1_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[256];
+    half hsum[256];
     for (int f = 0; f < 256; f++) {
         sum[f] = inception_4e_1x1_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 528; fc++) {
@@ -2527,14 +2997,24 @@ kernel void inception_4e_1x1_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 256; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 256) % 8 == 0) {
+                        for (int f = 0; f < 256; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 256;
             }
         }
+    }
+    for (int f = 0; f < 256; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 256; f++) {
@@ -2581,8 +3061,10 @@ kernel void inception_4e_3x3_reduce_0(texture2d_array<half, access::read> in [[t
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[160];
+    half hsum[160];
     for (int f = 0; f < 160; f++) {
         sum[f] = inception_4e_3x3_reduce_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 528; fc++) {
@@ -2592,14 +3074,24 @@ kernel void inception_4e_3x3_reduce_0(texture2d_array<half, access::read> in [[t
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 160; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 160) % 8 == 0) {
+                        for (int f = 0; f < 160; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 160;
             }
         }
+    }
+    for (int f = 0; f < 160; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 160; f++) {
@@ -2666,8 +3158,10 @@ kernel void inception_4e_3x3_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[320];
+    half hsum[320];
     for (int f = 0; f < 320; f++) {
         sum[f] = inception_4e_3x3_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 160; fc++) {
@@ -2677,14 +3171,24 @@ kernel void inception_4e_3x3_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 320; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 320) % 8 == 0) {
+                        for (int f = 0; f < 320; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 320;
             }
         }
+    }
+    for (int f = 0; f < 320; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 320; f++) {
@@ -2715,8 +3219,10 @@ kernel void inception_4e_5x5_reduce_0(texture2d_array<half, access::read> in [[t
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[32];
+    half hsum[32];
     for (int f = 0; f < 32; f++) {
         sum[f] = inception_4e_5x5_reduce_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 528; fc++) {
@@ -2726,14 +3232,24 @@ kernel void inception_4e_5x5_reduce_0(texture2d_array<half, access::read> in [[t
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 32; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 32) % 8 == 0) {
+                        for (int f = 0; f < 32; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 32;
             }
         }
+    }
+    for (int f = 0; f < 32; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 32; f++) {
@@ -2776,8 +3292,10 @@ kernel void inception_4e_5x5_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[128];
+    half hsum[128];
     for (int f = 0; f < 128; f++) {
         sum[f] = inception_4e_5x5_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 32; fc++) {
@@ -2787,14 +3305,24 @@ kernel void inception_4e_5x5_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 128) % 8 == 0) {
+                        for (int f = 0; f < 128; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 128;
             }
         }
+    }
+    for (int f = 0; f < 128; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 128; f++) {
@@ -2849,8 +3377,10 @@ kernel void inception_4e_pool_proj_0(texture2d_array<half, access::read> in [[te
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[128];
+    half hsum[128];
     for (int f = 0; f < 128; f++) {
         sum[f] = inception_4e_pool_proj_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 528; fc++) {
@@ -2860,14 +3390,24 @@ kernel void inception_4e_pool_proj_0(texture2d_array<half, access::read> in [[te
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 128) % 8 == 0) {
+                        for (int f = 0; f < 128; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 128;
             }
         }
+    }
+    for (int f = 0; f < 128; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 128; f++) {
@@ -2938,8 +3478,10 @@ kernel void inception_5a_1x1_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[256];
+    half hsum[256];
     for (int f = 0; f < 256; f++) {
         sum[f] = inception_5a_1x1_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 832; fc++) {
@@ -2949,14 +3491,24 @@ kernel void inception_5a_1x1_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 256; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 256) % 8 == 0) {
+                        for (int f = 0; f < 256; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 256;
             }
         }
+    }
+    for (int f = 0; f < 256; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 256; f++) {
@@ -3003,8 +3555,10 @@ kernel void inception_5a_3x3_reduce_0(texture2d_array<half, access::read> in [[t
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[160];
+    half hsum[160];
     for (int f = 0; f < 160; f++) {
         sum[f] = inception_5a_3x3_reduce_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 832; fc++) {
@@ -3014,14 +3568,24 @@ kernel void inception_5a_3x3_reduce_0(texture2d_array<half, access::read> in [[t
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 160; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 160) % 8 == 0) {
+                        for (int f = 0; f < 160; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 160;
             }
         }
+    }
+    for (int f = 0; f < 160; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 160; f++) {
@@ -3088,8 +3652,10 @@ kernel void inception_5a_3x3_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[320];
+    half hsum[320];
     for (int f = 0; f < 320; f++) {
         sum[f] = inception_5a_3x3_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 160; fc++) {
@@ -3099,14 +3665,24 @@ kernel void inception_5a_3x3_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 320; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 320) % 8 == 0) {
+                        for (int f = 0; f < 320; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 320;
             }
         }
+    }
+    for (int f = 0; f < 320; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 320; f++) {
@@ -3137,8 +3713,10 @@ kernel void inception_5a_5x5_reduce_0(texture2d_array<half, access::read> in [[t
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[32];
+    half hsum[32];
     for (int f = 0; f < 32; f++) {
         sum[f] = inception_5a_5x5_reduce_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 832; fc++) {
@@ -3148,14 +3726,24 @@ kernel void inception_5a_5x5_reduce_0(texture2d_array<half, access::read> in [[t
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 32; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 32) % 8 == 0) {
+                        for (int f = 0; f < 32; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 32;
             }
         }
+    }
+    for (int f = 0; f < 32; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 32; f++) {
@@ -3198,8 +3786,10 @@ kernel void inception_5a_5x5_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[128];
+    half hsum[128];
     for (int f = 0; f < 128; f++) {
         sum[f] = inception_5a_5x5_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 32; fc++) {
@@ -3209,14 +3799,24 @@ kernel void inception_5a_5x5_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 128) % 8 == 0) {
+                        for (int f = 0; f < 128; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 128;
             }
         }
+    }
+    for (int f = 0; f < 128; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 128; f++) {
@@ -3271,8 +3871,10 @@ kernel void inception_5a_pool_proj_0(texture2d_array<half, access::read> in [[te
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[128];
+    half hsum[128];
     for (int f = 0; f < 128; f++) {
         sum[f] = inception_5a_pool_proj_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 832; fc++) {
@@ -3282,14 +3884,24 @@ kernel void inception_5a_pool_proj_0(texture2d_array<half, access::read> in [[te
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 128) % 8 == 0) {
+                        for (int f = 0; f < 128; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 128;
             }
         }
+    }
+    for (int f = 0; f < 128; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 128; f++) {
@@ -3364,8 +3976,10 @@ kernel void inception_5b_1x1_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[384];
+    half hsum[384];
     for (int f = 0; f < 384; f++) {
         sum[f] = inception_5b_1x1_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 832; fc++) {
@@ -3375,14 +3989,24 @@ kernel void inception_5b_1x1_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 384; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 384) % 8 == 0) {
+                        for (int f = 0; f < 384; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 384;
             }
         }
+    }
+    for (int f = 0; f < 384; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 384; f++) {
@@ -3433,8 +4057,10 @@ kernel void inception_5b_3x3_reduce_0(texture2d_array<half, access::read> in [[t
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[192];
+    half hsum[192];
     for (int f = 0; f < 192; f++) {
         sum[f] = inception_5b_3x3_reduce_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 832; fc++) {
@@ -3444,14 +4070,24 @@ kernel void inception_5b_3x3_reduce_0(texture2d_array<half, access::read> in [[t
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 192; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 192) % 8 == 0) {
+                        for (int f = 0; f < 192; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 192;
             }
         }
+    }
+    for (int f = 0; f < 192; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 192; f++) {
@@ -3526,8 +4162,10 @@ kernel void inception_5b_3x3_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[384];
+    half hsum[384];
     for (int f = 0; f < 384; f++) {
         sum[f] = inception_5b_3x3_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 192; fc++) {
@@ -3537,14 +4175,24 @@ kernel void inception_5b_3x3_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 384; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 384) % 8 == 0) {
+                        for (int f = 0; f < 384; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 384;
             }
         }
+    }
+    for (int f = 0; f < 384; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 384; f++) {
@@ -3577,8 +4225,10 @@ kernel void inception_5b_5x5_reduce_0(texture2d_array<half, access::read> in [[t
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[48];
+    half hsum[48];
     for (int f = 0; f < 48; f++) {
         sum[f] = inception_5b_5x5_reduce_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 832; fc++) {
@@ -3588,14 +4238,24 @@ kernel void inception_5b_5x5_reduce_0(texture2d_array<half, access::read> in [[t
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 48; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 48) % 8 == 0) {
+                        for (int f = 0; f < 48; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 48;
             }
         }
+    }
+    for (int f = 0; f < 48; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 48; f++) {
@@ -3638,8 +4298,10 @@ kernel void inception_5b_5x5_0(texture2d_array<half, access::read> in [[texture(
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[128];
+    half hsum[128];
     for (int f = 0; f < 128; f++) {
         sum[f] = inception_5b_5x5_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 48; fc++) {
@@ -3649,14 +4311,24 @@ kernel void inception_5b_5x5_0(texture2d_array<half, access::read> in [[texture(
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 128) % 8 == 0) {
+                        for (int f = 0; f < 128; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 128;
             }
         }
+    }
+    for (int f = 0; f < 128; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 128; f++) {
@@ -3711,8 +4383,10 @@ kernel void inception_5b_pool_proj_0(texture2d_array<half, access::read> in [[te
     const int y = -padH + kernelH/2 + int(gid.y)*strideH;
     const int x = -padW + kernelW/2 + int(gid.x)*strideW;
     float sum[128];
+    half hsum[128];
     for (int f = 0; f < 128; f++) {
         sum[f] = inception_5b_pool_proj_bias[f];
+        hsum[f] = 0;
     }
     int i = 0;
     for (int fc = 0; fc < 832; fc++) {
@@ -3722,14 +4396,24 @@ kernel void inception_5b_pool_proj_0(texture2d_array<half, access::read> in [[te
                     half v = in.read(uint2(x + dx, y + dy), fc)[0];
                     for (int f = 0; f < 128; f++) {
                         half w = weights[i];
-                        sum[f] += w * v;
+                        hsum[f] += w * v;
                         i++;
+                    }
+                    if ((i / 128) % 8 == 0) {
+                        for (int f = 0; f < 128; f++) {
+                            sum[f] += hsum[f];
+                            hsum[f] = 0;
+                        }
                     }
                     continue;
                 }
                 i += 128;
             }
         }
+    }
+    for (int f = 0; f < 128; f++) {
+        sum[f] += hsum[f];
+        hsum[f] = 0;
     }
 
     for (int f = 0; f < 128; f++) {
