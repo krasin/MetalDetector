@@ -32,13 +32,13 @@ public class Engine {
 
         // Load kernels
         kernelStates = [:]
-        computeL1State = loadKernelState("computeL1")
-        computeL2State = loadKernelState("computeL2")
-        computeMaxState = loadKernelState("computeMax")
-        sample8x8State = loadKernelState("sample8x8")
+        computeL1State = LoadKernelState("computeL1")
+        computeL2State = LoadKernelState("computeL2")
+        computeMaxState = LoadKernelState("computeMax")
+        sample8x8State = LoadKernelState("sample8x8")
     }
 
-    private func loadKernelState(kernelName: String) -> MTLComputePipelineState {
+    public func LoadKernelState(kernelName: String) -> MTLComputePipelineState {
         let state = kernelStates[kernelName]
         if state != nil {
             return state!!
@@ -58,7 +58,7 @@ public class Engine {
 
     public func UnaryLayer(commandBuffer : MTLCommandBuffer, name : String, weights : MTLBuffer?,
         input : MTLTexture, output : MTLTexture, threadsPerThreadgroup: MTLSize) {
-        let state = loadKernelState(name)
+        let state = LoadKernelState(name)
         let commandEncoder = commandBuffer.computeCommandEncoder()
         commandEncoder.setComputePipelineState(state)
         commandEncoder.setTexture(input, atIndex: 0)
@@ -75,7 +75,7 @@ public class Engine {
 
     public func PerFilterLayer(commandBuffer : MTLCommandBuffer, name : String,
         weights : MTLBuffer?, numFilters : Int, input : MTLTexture, output : MTLTexture) {
-            let state = loadKernelState(name)
+            let state = LoadKernelState(name)
             let commandEncoder = commandBuffer.computeCommandEncoder()
             commandEncoder.setComputePipelineState(state)
             commandEncoder.setTexture(input, atIndex: 0)
@@ -223,7 +223,7 @@ public class Engine {
     public func ExtractResult(input: MTLTexture) -> [Float] {
         let commandBuffer = commandQueue!.commandBuffer()
         let commandEncoder = commandBuffer.computeCommandEncoder()
-        let state = loadKernelState("array1x1_to_buffer_0")
+        let state = LoadKernelState("array1x1_to_buffer_0")
         commandEncoder.setComputePipelineState(state)
         commandEncoder.setTexture(input, atIndex: 0)
         let resBuf = metalDevice!.newBufferWithLength(4 * input.arrayLength, options: .StorageModeShared)
@@ -248,7 +248,7 @@ public class Engine {
     public func Float2Half(input: MTLBuffer) -> [UInt8] {
         let commandBuffer = commandQueue!.commandBuffer()
         let commandEncoder = commandBuffer.computeCommandEncoder()
-        let state = loadKernelState("float2half")
+        let state = LoadKernelState("float2half")
         commandEncoder.setComputePipelineState(state)
         commandEncoder.setBuffer(input, offset: 0, atIndex: 0)
         let resBuf = metalDevice!.newBufferWithLength(input.length/2, options: .StorageModeShared)

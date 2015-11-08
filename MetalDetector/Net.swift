@@ -168,8 +168,8 @@ public class Net {
             return nil
         }
         let total = threadsPerThreadgroup.width * threadsPerThreadgroup.height * threadsPerThreadgroup.depth
-        if total > 512 {
-            // TODO: dynamically query this parameter.
+        let state = engine.LoadKernelState("\(layer.name)_0")
+        if total > state.maxTotalThreadsPerThreadgroup {
             return nil
         }
         var info = mach_timebase_info(numer: 0, denom: 0)
