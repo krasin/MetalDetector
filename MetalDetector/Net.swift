@@ -46,6 +46,14 @@ public func getBytesFromBundle(named: String) -> NSData {
     return data!
 }
 
+public func getHalfArrayFromBundle(engine: Engine, named: String) -> [UInt8] {
+    let data = getBytesFromBundle(named)
+    let ptr = UnsafePointer<UInt8>(data.bytes)
+    print("getHalfArrayFromBundle(\(named)), data.length: \(data.length)")
+    let buf = engine.metalDevice!.newBufferWithBytes(ptr.advancedBy(0), length: data.length, options: .StorageModeShared)
+    return engine.Float2Half(buf)
+}
+
 public func loadLabels(named: String) -> [String] {
     let path = NSBundle.mainBundle().pathForResource(named, ofType: "")
     if path == nil {
@@ -73,7 +81,7 @@ public struct NetLayer {
 public protocol NetConfig {
     func GetLayers() -> [NetLayer]
     func CreateBlobs(device: MTLDevice) -> [String: MTLTexture]
-    func CreateWeights(device: MTLDevice) -> [String: MTLBuffer]
+    func CreateWeights(engine: Engine) -> [String: MTLBuffer]
 }
 
 public class Net {
@@ -91,7 +99,7 @@ public class Net {
         self.engine = engine
         self.layers = config.GetLayers()
         self.blobs = config.CreateBlobs(engine.metalDevice!)
-        self.weights = config.CreateWeights(engine.metalDevice!)
+        self.weights = config.CreateWeights(engine)
         self.threadsPerThreadgroup = threadsPerThreadgroup
         self.labels = loadLabels("synset_words.txt")
         print("Loaded \(self.labels.count) labels")
@@ -245,8 +253,8 @@ public class Net {
         let firstTimeMsStr = NSString(format: "%.1f", firstTimeNs / 1E6)
         //print("\"\(layer!.name)\", best cell: \(bestCell!.width)x\(bestCell!.height)x\(bestCell!.depth), \(minTimeMsStr) ms vs \(firstTimeMsStr) ms for 16x16x1")
         // "inception_5b_pool_proj": MTLSizeMake(3, 3, 1),
-        if bestCell!.width != 16 || bestCell!.height != 16 || bestCell!.depth != 1 {
+        //if bestCell!.width != 16 || bestCell!.height != 16 || bestCell!.depth != 1 {
           print("\"\(layer!.name)\": MTLSizeMake(\(bestCell!.width), \(bestCell!.height), \(bestCell!.depth)), // \(minTimeMsStr) ms vs \(firstTimeMsStr) ms for 16x16x1")
-        }
+        //}
     }
 }

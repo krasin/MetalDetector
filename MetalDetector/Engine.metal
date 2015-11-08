@@ -121,7 +121,7 @@ kernel void sample8x8(texture2d_array<float, access::read> in [[texture(0)]],
 
 kernel void loss3_classifier_0(texture2d_array<float, access::read> in [[texture(0)]],
                                texture2d_array<float, access::write> out [[texture(1)]],
-                               device float* weights [[buffer(0)]],
+                               device half* weights [[buffer(0)]],
                                uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= 1000) { return; }
     float sum = 0.0;
@@ -141,7 +141,7 @@ kernel void loss3_classifier_0(texture2d_array<float, access::read> in [[texture
 
 kernel void prob_0(texture2d_array<float, access::read> in [[texture(0)]],
                    texture2d_array<float, access::write> out [[texture(1)]],
-                   device float* weights [[buffer(0)]],
+                   device half* weights [[buffer(0)]],
                    uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= 1) { return; }
     float maxv = in.read(uint2(0,0), 0)[0];
@@ -173,4 +173,14 @@ kernel void array1x1_to_buffer_0(texture2d_array<float, access::read> in [[textu
     }
     float v = in.read(uint2(0, 0), gid.x)[0];
     out[gid.x] = v;
+}
+
+kernel void float2half(device float* in [[buffer(0)]],
+                       device half* out [[buffer(1)]],
+                       uint gid [[thread_position_in_grid]]) {
+    const int N = 27961088 / 4;
+    if (gid >= N) {
+        return;
+    }
+    out[gid] = in[gid];
 }

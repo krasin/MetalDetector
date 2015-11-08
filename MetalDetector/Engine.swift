@@ -243,4 +243,28 @@ public class Engine {
         }
         return res
     }
+
+    // Takes a float32 2D texture, Nx1 and return a buffer with half values.
+    public func Float2Half(input: MTLBuffer) -> [UInt8] {
+        let commandBuffer = commandQueue!.commandBuffer()
+        let commandEncoder = commandBuffer.computeCommandEncoder()
+        let state = loadKernelState("float2half")
+        commandEncoder.setComputePipelineState(state)
+        commandEncoder.setBuffer(input, offset: 0, atIndex: 0)
+        let resBuf = metalDevice!.newBufferWithLength(input.length/2, options: .StorageModeShared)
+        commandEncoder.setBuffer(resBuf, offset: 0, atIndex: 1)
+        let threadsPerThreadgroup = MTLSizeMake(128, 1, 1)
+        let tpgx = (input.length / 4 + threadsPerThreadgroup.width - 1) / threadsPerThreadgroup.width;
+        let threadgroupsPerGrid = MTLSizeMake(tpgx, 1, 1)
+        commandEncoder.dispatchThreadgroups(threadgroupsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
+        commandEncoder.endEncoding()
+        commandBuffer.commit();
+        commandBuffer.waitUntilCompleted()
+        let resArr = UnsafeMutablePointer<UInt8>(resBuf.contents())
+        var res : [UInt8] = [UInt8](count: resBuf.length, repeatedValue: 0)
+        for i in 0...resBuf.length - 1 {
+            res[i] = resArr[i]
+        }
+        return res
+    }
 }
