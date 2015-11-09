@@ -3,7 +3,7 @@ GoogLeNet on iOS demo
 
 This is a basic demo of GoogLeNet from Caffe Zoo working on iOS.
 It takes the input from the camera and prints the top prediction.
-The speed is 1 FPS on iPhone 6S, and 7 seconds per frame on iPhone 6.
+The speed is 1 FPS on iPhone 6S, and 3 seconds per frame on iPhone 6.
 
 Two known bugs:
 
