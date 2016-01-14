@@ -14,3 +14,5 @@ Otherwise, the network will get a rotated image, and the classification will lik
 which are within ~3% of Caffe output, it's slightly worse than a real GoogLeNet taken from the Caffe Zoo.
 
 Also, please, be aware that ImageNet classes are weird, not so many real world things could be detected (but it knows about 300 breeds of dogs, whee!)
+
+The code was generated with [Goffe](https://bitbucket.org/krasin/goffe), Caffe-to-{Swift+Metal} generator.
