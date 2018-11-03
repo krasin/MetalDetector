@@ -1,5 +1,7 @@
 # MetalDetector
-GoogLeNet on iOS demo
+GoogLeNet on iOS demo.
+
+**Note:** this demo was implemented before TensorFlow, PyTorch or Core ML existed. It's preserved for historical purposes only. 
 
 This is a basic demo of GoogLeNet from Caffe Zoo working on iOS.
 It takes the input from the camera and prints the top prediction.
